@@ -1,0 +1,23 @@
+{
+  "flutter": {
+    "platforms": {
+      "android": {
+        "default": {
+          "projectId": "ent-insight-app",
+          "appId": "1:246473008231:android:bc968542b182360bace0c2",
+          "fileOutput": "android/app/google-services.json"
+        }
+      },
+      "dart": {
+        "lib/firebase_options.dart": {
+          "projectId": "ent-insight-app",
+          "configurations": {
+            "android": "1:246473008231:android:bc968542b182360bace0c2",
+            "ios": "1:246473008231:ios:bf2a5d99e072b7acace0c2",
+            "web": "1:246473008231:web:d275af4865815483ace0c2"
+          }
+        }
+      }
+    }
+  }
+}
