@@ -1,5 +1,7 @@
+import 'package:ent_insight_app/screens/sinusitis/detect-form.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
+import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
 
 import '../../widgets/widgets.g.dart';
 
@@ -175,59 +177,64 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
             ),
           ),
           const SizedBox(height: 15),
-          Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
-              Container(
-                width: MediaQuery.of(context).size.width,
-                margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                decoration: BoxDecoration(
-                  borderRadius: BorderRadius.circular(8),
-                  color: const Color.fromRGBO(255, 255, 255, 1),
-                  boxShadow: const [
-                    BoxShadow(
-                      offset: Offset(3, 3),
-                      blurRadius: 5,
-                      spreadRadius: 0,
-                      color: Color(0x1a000000),
-                    )
-                  ],
-                ),
-                padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                child: Column(
-                  mainAxisSize: MainAxisSize.min,
-                  children: [
-                    Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        image: const DecorationImage(
-                          image: AssetImage('assets/images/sinusitis.png'),
-                          fit: BoxFit.fitWidth,
+          MaterialButton(
+            onPressed: () {
+              pushScreenWithoutNavBar(context, const SinusitisAnaliseForm());
+            },
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                Container(
+                  width: MediaQuery.of(context).size.width,
+                  // margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(8),
+                    color: const Color.fromRGBO(255, 255, 255, 1),
+                    boxShadow: const [
+                      BoxShadow(
+                        offset: Offset(3, 3),
+                        blurRadius: 5,
+                        spreadRadius: 0,
+                        color: Color(0x1a000000),
+                      )
+                    ],
+                  ),
+                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    children: [
+                      Container(
+                        height: 200,
+                        decoration: BoxDecoration(
+                          borderRadius: BorderRadius.circular(8),
+                          image: const DecorationImage(
+                            image: AssetImage('assets/images/sinusitis.png'),
+                            fit: BoxFit.fitWidth,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                    Container(
-                      decoration: const BoxDecoration(),
-                      padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                      child: Text(
-                        'Sinusitis Identification',
-                        textAlign: TextAlign.left,
-                        style: GoogleFonts.inter(
-                          color: const Color.fromRGBO(75, 85, 99, 1),
-                          fontSize: 14,
-                          letterSpacing: 0,
-                          fontWeight: FontWeight.bold,
-                          height: 1.5,
+                      const SizedBox(height: 5),
+                      Container(
+                        decoration: const BoxDecoration(),
+                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
+                        child: Text(
+                          'Sinusitis Identification',
+                          textAlign: TextAlign.left,
+                          style: GoogleFonts.inter(
+                            color: const Color.fromRGBO(75, 85, 99, 1),
+                            fontSize: 14,
+                            letterSpacing: 0,
+                            fontWeight: FontWeight.bold,
+                            height: 1.5,
+                          ),
                         ),
                       ),
-                    ),
-                    const SizedBox(height: 5),
-                  ],
+                      const SizedBox(height: 5),
+                    ],
+                  ),
                 ),
-              ),
-            ],
+              ],
+            ),
           ),
           const SizedBox(height: 15),
           Padding(

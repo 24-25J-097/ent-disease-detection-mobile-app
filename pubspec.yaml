@@ -42,9 +42,14 @@ dependencies:
   google_fonts: ^6.2.1
   package_info_plus: ^8.1.1
   provider: ^6.1.2
-  json_annotation: ^4.9.0
   fluttertoast: ^8.2.8
   flutter_overlay_loader: ^2.0.0
+  image_picker: ^1.1.2
+  flutter_easyloading: ^3.0.5
+  json_annotation: ^4.8.1
+  dio: ^4.0.6
+  dio_http_cache: ^0.3.0
+  motion_toast: ^2.11.0
 
 dev_dependencies:
   flutter_test:
@@ -57,7 +62,10 @@ dev_dependencies:
   # rules and activating additional ones.
   flutter_lints: ^4.0.0
   build_runner: ^2.4.13
-  json_serializable: ^6.9.0
+  json_serializable: ^6.6.1
+
+dependency_overrides:
+  json_serializable: ^6.6.1
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -73,6 +81,7 @@ flutter:
   # To add assets to your application, add an assets section, like this:
   assets:
     - assets/images/
+    - assets/images/features/
 
   # An image asset can refer to one or more resolution-specific "variants", see
   # https://flutter.dev/to/resolution-aware-images

@@ -1,7 +1,9 @@
 part of '../widgets.g.dart';
 
 class TopAppBar extends StatelessWidget {
-  const TopAppBar({super.key});
+  final String? title;
+
+  const TopAppBar({super.key, this.title});
 
   @override
   Widget build(BuildContext context) {
@@ -35,6 +37,12 @@ class TopAppBar extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(width: 10),
+              if (title != null)
+                Text(
+                  "Identify Sinusitis",
+                  style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w500),
+                )
             ],
           ),
         ),
