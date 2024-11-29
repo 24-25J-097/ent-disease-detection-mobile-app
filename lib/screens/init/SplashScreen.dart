@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _authenticateUser() async {
-    // navigateByAuth(context, mounted);
+    navigateByAuth(context, mounted);
   }
 
   Future<void> _refreshScreen() async {
