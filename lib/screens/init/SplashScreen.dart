@@ -15,7 +15,7 @@ class _SplashScreenState extends State<SplashScreen> {
   final double _expandedImageHeight = 300;
 
   final String defaultLogo = "assets/images/logo.png";
-  final String animatedLogo = "assets/images/logo-bg-icon.png";
+  final String animatedLogo = "assets/images/logo-bg-icon-color.png";
 
   double _initialImageHeight = 50;
   String _displayLogo = "assets/images/logo.png";
@@ -27,7 +27,7 @@ class _SplashScreenState extends State<SplashScreen> {
   }
 
   _authenticateUser() async {
-    navigateByAuth(context, mounted);
+    // navigateByAuth(context, mounted);
   }
 
   Future<void> _refreshScreen() async {
