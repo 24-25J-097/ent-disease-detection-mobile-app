@@ -25,3 +25,24 @@ const _$SinusitisResultEnumEnumMap = {
   SinusitisResultEnum.moderate: 'moderate',
   SinusitisResultEnum.severe: 'severe',
 };
+
+PharyngitisResult _$PharyngitisResultFromJson(Map<String, dynamic> json) =>
+    PharyngitisResult(
+      prediction:
+          $enumDecode(_$PharyngitisResultEnumEnumMap, json['prediction']),
+      confidenceScore: json['confidence_score'] as num,
+    );
+
+Map<String, dynamic> _$PharyngitisResultToJson(PharyngitisResult instance) =>
+    <String, dynamic>{
+      'prediction': _$PharyngitisResultEnumEnumMap[instance.prediction]!,
+      'confidence_score': instance.confidenceScore,
+    };
+
+const _$PharyngitisResultEnumEnumMap = {
+  PharyngitisResultEnum.valid: 'valid',
+  PharyngitisResultEnum.invalid: 'invalid',
+  PharyngitisResultEnum.normal: 'normal',
+  PharyngitisResultEnum.moderate: 'moderate',
+  PharyngitisResultEnum.tonsillitis: 'tonsillitis',
+};

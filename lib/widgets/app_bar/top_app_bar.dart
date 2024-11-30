@@ -40,7 +40,7 @@ class TopAppBar extends StatelessWidget {
               const SizedBox(width: 10),
               if (title != null)
                 Text(
-                  "Identify Sinusitis",
+                  title!,
                   style: GoogleFonts.inter(fontSize: 18, fontWeight: FontWeight.w500),
                 )
             ],

@@ -5,6 +5,7 @@ import 'package:json_annotation/json_annotation.dart';
 
 part 'models.g.dart';
 part 'sinusitis_result.dart';
+part 'pharyngitis_result.dart';
 
 /*
 * For models.g.dart create
