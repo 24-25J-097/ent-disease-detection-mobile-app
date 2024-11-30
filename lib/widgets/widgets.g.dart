@@ -14,11 +14,12 @@ part 'app_bar/top_app_bar.dart';
 part 'buttons/app_text_button.dart';
 part 'buttons/button_card.dart';
 part 'buttons/button_card_wide.dart';
+//cards
+part 'cards/image_card.dart';
 // loaders
 part 'loaders/circular_loader_widget.dart';
+// modals
+part 'modals/choose_image_picker_source.dart';
 // notifications
 part 'notifications/app_snack_bar_widget.dart';
 part 'notifications/app_toast_widget.dart';
-
-// modals
-part 'modals/choose_image_picker_source.dart';

@@ -1,3 +1,4 @@
+import 'package:ent_insight_app/screens/pharyngitis/create_pharyngitis_report.dart';
 import 'package:ent_insight_app/screens/sinusitis/detect-form.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
@@ -13,6 +14,19 @@ class GuestHomeScreen extends StatefulWidget {
 }
 
 class _GuestHomeScreenState extends State<GuestHomeScreen> {
+  List<Map<String, dynamic>> reportTypes = [
+    {
+      'screen': const SinusitisAnaliseForm(),
+      'image': 'assets/images/sinusitis.png',
+      'text': 'Sinusitis Identification',
+    },
+    {
+      'screen': const CreatePharyngitisReport(),
+      'image': 'assets/images/features/pharyngitis.jpg',
+      'text': 'Pharyngitis Identification',
+    }
+  ];
+
   String getGreeting() {
     final hour = DateTime.now().hour;
     if (hour < 12) {
@@ -177,66 +191,33 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
             ),
           ),
           const SizedBox(height: 15),
-          MaterialButton(
-            onPressed: () {
-              pushScreenWithoutNavBar(context, const SinusitisAnaliseForm());
-            },
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Container(
-                  width: MediaQuery.of(context).size.width,
-                  // margin: const EdgeInsets.symmetric(horizontal: 12, vertical: 0),
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(8),
-                    color: const Color.fromRGBO(255, 255, 255, 1),
-                    boxShadow: const [
-                      BoxShadow(
-                        offset: Offset(3, 3),
-                        blurRadius: 5,
-                        spreadRadius: 0,
-                        color: Color(0x1a000000),
-                      )
-                    ],
+          SizedBox(
+            height: 190,
+            child: ListView.separated(
+              scrollDirection: Axis.horizontal,
+              shrinkWrap: true,
+              itemCount: reportTypes.length,
+              padding: const EdgeInsets.only(left: 10, right: 10),
+              separatorBuilder: (BuildContext context, int index) {
+                return const SizedBox(width: 16);
+              },
+              itemBuilder: (BuildContext context, int index) {
+                var report = reportTypes[index];
+                return Container(
+                  margin: EdgeInsets.zero,
+                  padding: EdgeInsets.zero,
+                  child: ImageCard(
+                    onPressed: () {
+                      pushScreenWithoutNavBar(context, report['screen']);
+                    },
+                    image: report['image'],
+                    text: report['text'],
                   ),
-                  padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                  child: Column(
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Container(
-                        height: 200,
-                        decoration: BoxDecoration(
-                          borderRadius: BorderRadius.circular(8),
-                          image: const DecorationImage(
-                            image: AssetImage('assets/images/sinusitis.png'),
-                            fit: BoxFit.fitWidth,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                      Container(
-                        decoration: const BoxDecoration(),
-                        padding: const EdgeInsets.symmetric(horizontal: 0, vertical: 0),
-                        child: Text(
-                          'Sinusitis Identification',
-                          textAlign: TextAlign.left,
-                          style: GoogleFonts.inter(
-                            color: const Color.fromRGBO(75, 85, 99, 1),
-                            fontSize: 14,
-                            letterSpacing: 0,
-                            fontWeight: FontWeight.bold,
-                            height: 1.5,
-                          ),
-                        ),
-                      ),
-                      const SizedBox(height: 5),
-                    ],
-                  ),
-                ),
-              ],
+                );
+              },
             ),
           ),
-          const SizedBox(height: 15),
+          const SizedBox(height: 10),
           Padding(
             padding: const EdgeInsets.symmetric(horizontal: 12),
             child: Text(
