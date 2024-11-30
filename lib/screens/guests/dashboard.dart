@@ -1,3 +1,4 @@
+import 'package:ent_insight_app/screens/cholesteatoma/cholesteatoma_diagnosis_form.dart';
 import 'package:ent_insight_app/screens/pharyngitis/create_pharyngitis_report.dart';
 import 'package:ent_insight_app/screens/sinusitis/detect-form.dart';
 import 'package:flutter/material.dart';
@@ -24,6 +25,11 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
       'screen': const CreatePharyngitisReport(),
       'image': 'assets/images/features/pharyngitis.jpg',
       'text': 'Pharyngitis Identification',
+    },
+    {
+      'screen': const CholesteatomaDiagnosisForm(),
+      'image': 'assets/images/features/cholesteatoma.jpg',
+      'text': 'Cholesteatoma Identification',
     }
   ];
 
