@@ -12,7 +12,7 @@ class SinusitisAnalyzeService {
     debugPrint(":::::::::::::::::::::::::::::::::::::: SinusitisAnalyzeService->analyzeXray(formData) ::::::::::::::::::::::::::::::::::::::");
     try {
       final response = await CustomHttp.getDio().post(
-        '${GlobalData.publicUrl}predict',
+        '${GlobalData.baseUrl}/predict',
         data: formData,
         options: Options(validateStatus: (_) => true),
       );

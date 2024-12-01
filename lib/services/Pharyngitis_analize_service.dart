@@ -12,7 +12,7 @@ class PharyngitisAnalyzeService {
     debugPrint(":::::::::::::::::::::::::::::::::::::: PharyngitisAnalyzeService->analyzeXray(formData) ::::::::::::::::::::::::::::::::::::::");
     try {
       final response = await CustomHttp.getDio().post(
-        '${GlobalData.publicUrl}pharyngitis/predict',
+        '${GlobalData.baseUrl}/pharyngitis/predict',
         data: formData,
         options: Options(validateStatus: (_) => true),
       );
