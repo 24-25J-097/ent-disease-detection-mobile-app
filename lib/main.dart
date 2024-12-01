@@ -5,6 +5,7 @@ import 'package:ent_insight_app/utils/theme_consts.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter_easyloading/flutter_easyloading.dart';
 import 'package:provider/provider.dart';
 
 import 'firebase_options.dart';
@@ -41,6 +42,7 @@ class MyApp extends StatelessWidget {
       // darkTheme: ThemeConsts.darkTheme,
       home: const SplashScreen(),
       routes: routes,
+      builder: EasyLoading.init(),
     );
   }
 }
