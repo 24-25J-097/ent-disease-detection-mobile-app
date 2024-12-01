@@ -11,6 +11,6 @@ class GlobalData {
   // static const String baseUrl = 'http://192.168.1.100/entinsight-com/public';
 
   static const String authUrl = '$baseUrl/api/auth/';
-  static const String publicUrl = '$baseUrl/'
+  static const String publicUrl = '$baseUrl/'; // DO NOT CHANGE
   static const String doctorUrl = '$baseUrl/api/doctor/';
 }

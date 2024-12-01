@@ -96,6 +96,11 @@ class _SinusitisAnaliseFormState extends State<SinusitisAnaliseForm> {
 
       try {
         analysisResult = await SinusitisAnalyzeService.analyzeXray(formData);
+        if (analysisResult?.prediction == SinusitisResultEnum.invalid) {
+          setState(() {
+            fileError = "Please select a valid Water's view X Ray!";
+          });
+        }
       } catch (e) {
         debugPrint(e.toString());
         if (mounted) {
@@ -256,7 +261,7 @@ class _SinusitisAnaliseFormState extends State<SinusitisAnaliseForm> {
                           ),
                         const SizedBox(height: 10),
                         Text(
-                          "Sinusitis Severity: ${analysisResult?.prediction.name}",
+                          analysisResult?.prediction == SinusitisResultEnum.invalid ? "Invalid Image" : "Sinusitis Severity: ${analysisResult?.prediction.name}",
                           style: TextStyle(
                             fontSize: 18,
                             fontWeight: FontWeight.bold,

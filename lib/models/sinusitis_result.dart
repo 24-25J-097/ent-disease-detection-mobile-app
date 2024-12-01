@@ -32,9 +32,9 @@ enum SinusitisResultEnum {
 class StatusColors {
   static const Map<SinusitisResultEnum, MaterialColor> _colors = {
     SinusitisResultEnum.valid: Colors.amber, // Light gray
-    SinusitisResultEnum.invalid: Colors.orange, // Yellow
+    SinusitisResultEnum.invalid: Colors.grey, // Yellow
     SinusitisResultEnum.mild: Colors.blue, // Blue
-    SinusitisResultEnum.moderate: Colors.green, // Green
+    SinusitisResultEnum.moderate: Colors.amber, // Green
     SinusitisResultEnum.severe: Colors.red, // Red
   };
 
