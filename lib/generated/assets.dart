@@ -21,6 +21,7 @@ class Assets {
   static const String imagesLogo = 'assets/images/logo.png';
   static const String imagesLogoBgIcon = 'assets/images/logo-bg-icon.png';
   static const String imagesLogoBgIconColor = 'assets/images/logo-bg-icon-color.png';
+  static const String imagesLogoBgIconColorGray = 'assets/images/logo-bg-icon-color-gray.png';
   static const String imagesSinusitis = 'assets/images/sinusitis.png';
   static const String imagesSocialLoginDividerOr = 'assets/images/social_login_divider_or.png';
   static const String imagesSplashScreenParking = 'assets/images/splash-screen-parking.png';

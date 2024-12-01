@@ -4,12 +4,12 @@ import 'package:google_fonts/google_fonts.dart';
 import 'color_scheme.dart';
 
 class ThemeConsts {
-  static const Color appPrimaryColorLight = Color(0xffedf3ff);
+  static const Color appPrimaryColorLight = Color(0xffe3f2fd);
   static const Color appPrimaryColorDark = Color(0xff020208);
   static const Color appPrimaryYellow = Color(0xffF79515);
   static const Color appPrimaryYellow2 = Color(0xffffb140);
   static const Color appPrimaryBlue = Color(0xff4E74F9);
-  static const Color appPrimaryLightYellow = Color(0xffF8EEC0);
+  static const Color appPrimaryLightBlue = Color(0xff7aacf6);
   static const Color appPrimaryColorDanger = Color(0xffda0a31);
 
   static ThemeData lightTheme = ThemeData(
@@ -42,11 +42,11 @@ class ThemeConsts {
       ),
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xffC2E6FF)),
+        borderSide: const BorderSide(color: Color(0xFF03A9F4)),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(10),
-        borderSide: const BorderSide(color: Color(0xffC2E6FF)),
+        borderSide: const BorderSide(color: Color(0xFF0288D1)),
       ),
     ),
     buttonTheme: const ButtonThemeData(

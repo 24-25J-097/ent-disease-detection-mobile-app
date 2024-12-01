@@ -11,14 +11,14 @@ class SplashScreen extends StatefulWidget {
 }
 
 class _SplashScreenState extends State<SplashScreen> {
-  final double _defaultLogoHeight = 50;
-  final double _expandedImageHeight = 300;
+  final double _defaultLogoHeight = 300;
+  final double _expandedImageHeight = 600;
 
-  final String defaultLogo = "assets/images/logo.png";
-  final String animatedLogo = "assets/images/logo-bg-icon-color.png";
+  final String defaultLogo = "assets/images/logo-bg-icon-color.png";
+  final String animatedLogo = "assets/images/logo-bg-icon-color-gray.png";
 
-  double _initialImageHeight = 50;
-  String _displayLogo = "assets/images/logo.png";
+  double _initialImageHeight = 300;
+  String _displayLogo = "assets/images/logo-bg-icon-color.png";
 
   @override
   void initState() {
@@ -74,14 +74,14 @@ class _SplashScreenState extends State<SplashScreen> {
             child: Stack(
               alignment: Alignment.center,
               children: [
-                Opacity(
-                  opacity: 0.8,
-                  child: Image.asset(
-                    'assets/images/logo-bg-icon.png',
-                    height: 300,
-                    fit: BoxFit.cover,
-                  ),
-                ),
+                // Opacity(
+                //   opacity: 0.8,
+                //   child: Image.asset(
+                //     defaultLogo,
+                //     height: 300,
+                //     fit: BoxFit.cover,
+                //   ),
+                // ),
                 Center(
                   child: GestureDetector(
                     onDoubleTap: _refreshScreen,

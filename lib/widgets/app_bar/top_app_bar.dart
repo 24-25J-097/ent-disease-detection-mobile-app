@@ -27,7 +27,7 @@ class TopAppBar extends StatelessWidget {
                 child: Container(
                   padding: const EdgeInsets.all(8),
                   decoration: BoxDecoration(
-                    color: ThemeConsts.appPrimaryLightYellow,
+                    color: ThemeConsts.appPrimaryLightBlue,
                     borderRadius: BorderRadius.circular(20),
                   ),
                   child: const Icon(
