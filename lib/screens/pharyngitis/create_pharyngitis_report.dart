@@ -97,6 +97,11 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
 
       try {
         analysisResult = await PharyngitisAnalyzeService.analyzeImage(formData);
+        if (analysisResult?.prediction == PharyngitisResultEnum.invalid) {
+          setState(() {
+            fileError = "Please select a valid Throat Image!";
+          });
+        }
       } catch (e) {
         debugPrint(e.toString());
         if (mounted) {

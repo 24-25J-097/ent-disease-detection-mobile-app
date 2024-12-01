@@ -31,9 +31,9 @@ enum PharyngitisResultEnum {
 class PharyngitisStatusColors {
   static const Map<PharyngitisResultEnum, MaterialColor> _colors = {
     PharyngitisResultEnum.valid: Colors.amber, // Light gray
-    PharyngitisResultEnum.invalid: Colors.orange, // Yellow
+    PharyngitisResultEnum.invalid: Colors.grey, // Yellow
     PharyngitisResultEnum.normal: Colors.blue, // Blue
-    PharyngitisResultEnum.moderate: Colors.green, // Green
+    PharyngitisResultEnum.moderate: Colors.amber, // Green
     PharyngitisResultEnum.tonsillitis: Colors.red, // Red
   };
 
