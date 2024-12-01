@@ -22,15 +22,15 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
       'text': 'Sinusitis Identification',
     },
     {
+      'screen': const CholesteatomaDiagnosisForm(),
+      'image': 'assets/images/features/cholesteatoma.jpg',
+      'text': 'Cholesteatoma Identification',
+    },
+    {
       'screen': const CreatePharyngitisReport(),
       'image': 'assets/images/features/pharyngitis.jpg',
       'text': 'Pharyngitis Identification',
     },
-    {
-      'screen': const CholesteatomaDiagnosisForm(),
-      'image': 'assets/images/features/cholesteatoma.jpg',
-      'text': 'Cholesteatoma Identification',
-    }
   ];
 
   String getGreeting() {

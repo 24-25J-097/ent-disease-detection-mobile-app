@@ -2,6 +2,7 @@ import 'dart:io';
 
 import 'package:dio/dio.dart';
 import 'package:ent_insight_app/models/models.dart';
+import 'package:ent_insight_app/services/cholesteatoma_diagnosis_service.dart';
 import 'package:ent_insight_app/widgets/widgets.g.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -29,7 +30,7 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
   bool isDisable = false;
   bool isLoading = false;
 
-  Cholesteatoma? diagnosisResult;
+  DiagnosisResult? _cholesteatomaResult;
 
   void pickFiles(ImageSource source) async {
     try {
@@ -42,7 +43,7 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
         _imageController = result;
         setState(() {
           fileError = null;
-          diagnosisResult = null;
+          _cholesteatomaResult = null;
         });
       }
     } on PlatformException catch (e) {
@@ -83,7 +84,12 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
       });
 
       try {
-        // var response = await CholesteatomaDiagnosisService.cholesteatomaDiagnosis(formData);
+        Cholesteatoma? cholesteatomaData = await CholesteatomaDiagnosisService.cholesteatomaDiagnosis(formData);
+        _cholesteatomaResult = DiagnosisResult(
+          isCholesteatoma: cholesteatomaData?.diagnosisResult?.isCholesteatoma,
+          stage: cholesteatomaData?.diagnosisResult?.stage,
+          suggestions: cholesteatomaData?.diagnosisResult?.suggestions,
+        );
       } catch (e) {
         debugPrint(e.toString());
         if (mounted) {
@@ -376,20 +382,29 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
                           ),
                         ),
                         const SizedBox(height: 16),
-                        diagnosisResult != null
+                        _cholesteatomaResult != null
                             ? Column(
                                 crossAxisAlignment: CrossAxisAlignment.start,
                                 children: [
-                                  _buildDiagnosisRow('Cholesteatoma Identified:', 'Yes', Colors.red),
-                                  _buildDiagnosisRow('Current Stage:', 'Stage 1', Colors.black),
-                                  _buildDiagnosisRow('Suggestions:', 'None', Colors.black),
-                                  // _buildDiagnosisRow(
-                                  //   'Cholesteatoma Identified:',
-                                  //   diagnosisResult['isCholesteatoma'] ? 'Yes' : 'No',
-                                  //   diagnosisResult['isCholesteatoma'] != null ? (diagnosisResult['isCholesteatoma'] ? Colors.red : Colors.green) : Colors.black,
-                                  // ),
-                                  // _buildDiagnosisRow('Current Stage:', diagnosisResult['stage'], Colors.black),
-                                  // _buildDiagnosisRow('Suggestions:', diagnosisResult['suggestions'], Colors.black),
+                                  _buildDiagnosisRow(
+                                    'Cholesteatoma Identified:',
+                                    _cholesteatomaResult?.isCholesteatoma != null
+                                        ? (_cholesteatomaResult?.isCholesteatoma == true ? 'Yes' : 'No')
+                                        : 'Unknown', // Handle null case
+                                    _cholesteatomaResult?.isCholesteatoma != null
+                                        ? (_cholesteatomaResult?.isCholesteatoma == true ? Colors.red : Colors.green)
+                                        : Colors.black, // Handle null case
+                                  ),
+                                  _buildDiagnosisRow(
+                                    'Current Stage:',
+                                    _cholesteatomaResult?.stage ?? 'N/A',
+                                    Colors.black,
+                                  ),
+                                  _buildDiagnosisRow(
+                                    'Suggestions:',
+                                    _cholesteatomaResult?.suggestions ?? 'No suggestions available',
+                                    Colors.black,
+                                  ),
                                   Row(
                                     mainAxisAlignment: MainAxisAlignment.end,
                                     children: [
