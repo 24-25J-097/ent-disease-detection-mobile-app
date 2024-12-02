@@ -37,12 +37,18 @@ PharyngitisResult _$PharyngitisResultFromJson(Map<String, dynamic> json) =>
       prediction:
           $enumDecode(_$PharyngitisResultEnumEnumMap, json['prediction']),
       confidenceScore: json['confidence_score'] as num,
+      isDiseased: json['isDiseased'] as bool,
+      label: json['label'] as String,
+      suggestions: json['suggestions'] as String,
     );
 
 Map<String, dynamic> _$PharyngitisResultToJson(PharyngitisResult instance) =>
     <String, dynamic>{
+      'isDiseased': instance.isDiseased,
       'prediction': _$PharyngitisResultEnumEnumMap[instance.prediction]!,
       'confidence_score': instance.confidenceScore,
+      'label': instance.label,
+      'suggestions': instance.suggestions,
     };
 
 const _$PharyngitisResultEnumEnumMap = {

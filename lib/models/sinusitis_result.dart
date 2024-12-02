@@ -39,7 +39,7 @@ class StatusColors {
     SinusitisResultEnum.valid: Colors.amber, // Light gray
     SinusitisResultEnum.invalid: Colors.grey, // Yellow
     SinusitisResultEnum.mild: Colors.blue, // Blue
-    SinusitisResultEnum.moderate: Colors.amber, // Green
+    SinusitisResultEnum.moderate: Colors.deepOrange, // Green
     SinusitisResultEnum.severe: Colors.red, // Red
   };
 

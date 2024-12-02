@@ -292,13 +292,7 @@ class _SinusitisAnaliseFormState extends State<SinusitisAnaliseForm> {
                         ),
                         const SizedBox(height: 16),
                         analysisResult != null
-                            ? analysisResult?.prediction == SinusitisResultEnum.invalid
-                                ? InformationRow(
-                                    label: 'Invalid:',
-                                    value: analysisResult!.suggestions,
-                                    valueColor: Colors.black,
-                                  )
-                                : Column(
+                            ? Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       InformationRow(
