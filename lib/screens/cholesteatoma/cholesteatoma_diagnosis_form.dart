@@ -24,13 +24,12 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
   final TextEditingController _patientIdController = TextEditingController();
   final TextEditingController _additionalInfoController = TextEditingController();
   late XFile _imageController = XFile('');
-  String? fileError;
-  String? patientIdError;
-  String? patientIdErrMsg;
-  bool isDisable = false;
-  bool isLoading = false;
+  String? _fileError;
+  bool _isDisable = false;
+  bool _isLoading = false;
 
   DiagnosisResult? _cholesteatomaResult;
+  String? _diagnosisId;
 
   void pickFiles(ImageSource source) async {
     try {
@@ -42,20 +41,20 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
       if (result != null) {
         _imageController = result;
         setState(() {
-          fileError = null;
+          _fileError = null;
           _cholesteatomaResult = null;
         });
       }
     } on PlatformException catch (e) {
       setState(() {
-        fileError = e.message;
+        _fileError = e.message;
       });
       if (kDebugMode) {
         print('Unsupported operation: $e');
       }
     } catch (e) {
       setState(() {
-        fileError = e.toString();
+        _fileError = e.toString();
       });
       if (kDebugMode) {
         print(e.toString());
@@ -64,13 +63,13 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
   }
 
   Future<void> _diagnose() async {
-    if (isLoading) return;
-    setState(() => isLoading = true);
+    if (_isLoading || _isDisable) return;
+    setState(() => _isLoading = true);
 
     if (_imageController.name.isEmpty || _imageController.name == '') {
       setState(() {
-        fileError = "Please choose the image file";
-        isLoading = false;
+        _fileError = "Please choose the image file";
+        _isLoading = false;
       });
     }
 
@@ -85,11 +84,14 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
 
       try {
         Cholesteatoma? cholesteatomaData = await CholesteatomaDiagnosisService.cholesteatomaDiagnosis(formData);
-        _cholesteatomaResult = DiagnosisResult(
-          isCholesteatoma: cholesteatomaData?.diagnosisResult?.isCholesteatoma,
-          stage: cholesteatomaData?.diagnosisResult?.stage,
-          suggestions: cholesteatomaData?.diagnosisResult?.suggestions,
-        );
+        setState(() {
+          _cholesteatomaResult = DiagnosisResult(
+            isCholesteatoma: cholesteatomaData?.diagnosisResult?.isCholesteatoma,
+            stage: cholesteatomaData?.diagnosisResult?.stage,
+            suggestions: cholesteatomaData?.diagnosisResult?.suggestions,
+          );
+          _diagnosisId = cholesteatomaData?.id;
+        });
       } catch (e) {
         debugPrint(e.toString());
         if (mounted) {
@@ -105,7 +107,7 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
         }
       } finally {
         await EasyLoading.dismiss();
-        setState(() => isLoading = false);
+        setState(() => _isLoading = false);
         // if (mounted) {
         //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const DiagnosisReports()));
         // }
@@ -114,50 +116,44 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
   }
 
   Future<void> _handleDone(bool accept) async {
-    // try {
-    //   setState(() {
-    //     isDisable = true;
-    //   });
-    //
-    //   final data = DiagnosisAcceptance(
-    //     diagnosisId: diagnosisResult?['diagnosisId'] ?? '',
-    //     accept: accept,
-    //   );
-    //
-    //   final response = await DiagnosisService.cholesteatomaDiagnosisAccept(data);
-    //
-    //   if (response['success']) {
-    //     notifySuccess(response['message']);
-    //   }
-    // } catch (error) {
-    //   if (error.toString().contains('Failed to accept diagnosis')) {
-    //     setState(() {
-    //       error = 'An unexpected error occurred. Please try again.';
-    //     });
-    //   } else {
-    //     setState(() {
-    //       error = error.toString();
-    //     });
-    //     notifyError(error.toString());
-    //   }
-    // } finally {
-    //   setState(() {
-    //     isDisable = false;
-    //     diagnosisResult = null;
-    //     patientId = '';
-    //     additionalInfo = '';
-    //     file = null;
-    //     imagePreview = '';
-    //     formKey.currentState?.reset();
-    //   });
-    //
-    //   // Assuming you're using a method to refresh or reload the page
-    //   // For example:
-    //   // Navigator.pushReplacement(
-    //   //   context,
-    //   //   MaterialPageRoute(builder: (context) => DiagnosisScreen()),
-    //   // );
-    // }
+    if (_isDisable || _isLoading) return;
+    try {
+      EasyLoading.show(status: "Submitting...");
+      setState(() {
+        _isDisable = true;
+      });
+
+      final data = {"diagnosisId": _diagnosisId, "accept": accept};
+
+      final responseMsg = await CholesteatomaDiagnosisService.cholesteatomaDiagnosisAccept(data);
+      if (responseMsg != null && mounted) {
+        AppSnackBarWidget(
+          context: context,
+          bgColor: Colors.green,
+        ).show(message: responseMsg);
+      }
+    } catch (error) {
+      debugPrint(error.toString());
+      if (mounted) {
+        AppSnackBarWidget(
+          context: context,
+          bgColor: Colors.red,
+        ).show(message: error.toString());
+      }
+    } finally {
+      await EasyLoading.dismiss();
+      _formKey.currentState?.reset();
+      _imageController = XFile('');
+      _patientIdController.clear();
+      _additionalInfoController.clear();
+      setState(() {
+        _isDisable = false;
+        _isLoading = false;
+        _fileError = "";
+        _cholesteatomaResult = null;
+        _diagnosisId = null;
+      });
+    }
   }
 
   @override
@@ -268,7 +264,7 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
                                   borderRadius: BorderRadius.circular(12),
                                   color: const Color(0x1492dbff),
                                   border: Border.all(
-                                    color: fileError == null ? Colors.lightBlue : Colors.red[900]!,
+                                    color: _fileError == null ? Colors.lightBlue : Colors.red[900]!,
                                   ),
                                 ),
                                 child: const Row(
@@ -283,12 +279,12 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
                                 ),
                               ),
                             ),
-                            if (fileError != null)
+                            if (_fileError != null)
                               Align(
                                 alignment: Alignment.centerLeft,
                                 child: Padding(
                                   padding: const EdgeInsets.only(left: 10, top: 3),
-                                  child: Text(fileError!,
+                                  child: Text(_fileError!,
                                       style: TextStyle(
                                         color: Colors.red[900],
                                         fontSize: 12,
@@ -320,7 +316,7 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
                                 borderRadius: BorderRadius.circular(20),
                               ),
                               color: const Color(0xFF1C2A3A),
-                              child: isLoading
+                              child: _isLoading
                                   ? const SizedBox(
                                       width: 16, // Adjust size as needed
                                       height: 16,
