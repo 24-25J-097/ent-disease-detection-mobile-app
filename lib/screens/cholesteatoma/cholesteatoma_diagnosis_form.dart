@@ -89,6 +89,8 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
             isCholesteatoma: cholesteatomaData?.diagnosisResult?.isCholesteatoma,
             stage: cholesteatomaData?.diagnosisResult?.stage,
             suggestions: cholesteatomaData?.diagnosisResult?.suggestions,
+            confidenceScore: cholesteatomaData?.diagnosisResult?.confidenceScore,
+            prediction: cholesteatomaData?.diagnosisResult?.prediction,
           );
           _diagnosisId = cholesteatomaData?.id;
         });
@@ -212,133 +214,136 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            const Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Upload Middle Ear Endoscopy",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  color: Colors.blueAccent,
+                      IgnorePointer(
+                        ignoring: _cholesteatomaResult != null,
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              const Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Upload Middle Ear Endoscopy",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Colors.blueAccent,
+                                  ),
+                                  textAlign: TextAlign.left,
                                 ),
-                                textAlign: TextAlign.left,
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              controller: _patientIdController,
-                              validator: (patientId) {
-                                if ((patientId == null || patientId.isEmpty)) {
-                                  return "Please enter the Patient ID";
-                                }
-                                if (patientId.length < 5) {
-                                  return "Patient ID must be at least 5 characters long";
-                                }
-                                return null;
-                              },
-                              decoration: const InputDecoration(
-                                labelText: "Patient Id *",
-                                hintText: "Enter your Patient Id",
-                                suffixIcon: SizedBox(),
+                              const SizedBox(height: 20),
+                              TextFormField(
+                                controller: _patientIdController,
+                                validator: (patientId) {
+                                  if ((patientId == null || patientId.isEmpty)) {
+                                    return "Please enter the Patient ID";
+                                  }
+                                  if (patientId.length < 5) {
+                                    return "Patient ID must be at least 5 characters long";
+                                  }
+                                  return null;
+                                },
+                                decoration: const InputDecoration(
+                                  labelText: "Patient Id *",
+                                  hintText: "Enter your Patient Id",
+                                  suffixIcon: SizedBox(),
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              controller: _additionalInfoController,
-                              decoration: const InputDecoration(
-                                labelText: "Additional Information",
-                                hintText: "Enter any additional details (optional)",
-                                suffixIcon: SizedBox(),
+                              const SizedBox(height: 20),
+                              TextFormField(
+                                controller: _additionalInfoController,
+                                decoration: const InputDecoration(
+                                  labelText: "Additional Information",
+                                  hintText: "Enter any additional details (optional)",
+                                  suffixIcon: SizedBox(),
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            GestureDetector(
-                              onTap: () => chooseImagePickerSource(context, pickFiles),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: const Color(0x1492dbff),
-                                  border: Border.all(
-                                    color: _fileError == null ? Colors.lightBlue : Colors.red[900]!,
+                              const SizedBox(height: 20),
+                              GestureDetector(
+                                onTap: () => chooseImagePickerSource(context, pickFiles),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0x1492dbff),
+                                    border: Border.all(
+                                      color: _fileError == null ? Colors.lightBlue : Colors.red[900]!,
+                                    ),
+                                  ),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Choose Endoscopy",
+                                        style: TextStyle(fontSize: 16, color: Colors.blueAccent),
+                                      ),
+                                      Icon(Icons.upload_file, color: Colors.blueAccent),
+                                    ],
                                   ),
                                 ),
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Choose Endoscopy",
-                                      style: TextStyle(fontSize: 16, color: Colors.blueAccent),
-                                    ),
-                                    Icon(Icons.upload_file, color: Colors.blueAccent),
-                                  ],
-                                ),
                               ),
-                            ),
-                            if (_fileError != null)
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 10, top: 3),
-                                  child: Text(_fileError!,
-                                      style: TextStyle(
-                                        color: Colors.red[900],
+                              if (_fileError != null)
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 10, top: 3),
+                                    child: Text(_fileError!,
+                                        style: TextStyle(
+                                          color: Colors.red[900],
+                                          fontSize: 12,
+                                        )),
+                                  ),
+                                ),
+                              if (_imageController.name.isNotEmpty)
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 10, top: 3),
+                                    child: Text(
+                                      _imageController.name,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: true,
+                                      style: const TextStyle(
+                                        color: Colors.black45,
                                         fontSize: 12,
-                                      )),
-                                ),
-                              ),
-                            if (_imageController.name.isNotEmpty)
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 10, top: 3),
-                                  child: Text(
-                                    _imageController.name,
-                                    overflow: TextOverflow.ellipsis,
-                                    softWrap: true,
-                                    style: const TextStyle(
-                                      color: Colors.black45,
-                                      fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            const SizedBox(height: 20),
-                            MaterialButton(
-                              onPressed: _diagnose,
-                              minWidth: double.infinity,
-                              height: 48,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              color: const Color(0xFF1C2A3A),
-                              child: _isLoading
-                                  ? const SizedBox(
-                                      width: 16, // Adjust size as needed
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              const SizedBox(height: 20),
+                              MaterialButton(
+                                onPressed: _diagnose,
+                                minWidth: double.infinity,
+                                height: 48,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                color: const Color(0xFF1C2A3A),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        width: 16, // Adjust size as needed
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                        ),
+                                      )
+                                    : Text(
+                                        'Diagnose',
+                                        textAlign: TextAlign.left,
+                                        style: GoogleFonts.inter(
+                                          color: const Color.fromRGBO(255, 255, 255, 1),
+                                          fontSize: 16,
+                                          letterSpacing: 0,
+                                          fontWeight: FontWeight.normal,
+                                          height: 1.5,
+                                        ),
                                       ),
-                                    )
-                                  : Text(
-                                      'Diagnose',
-                                      textAlign: TextAlign.left,
-                                      style: GoogleFonts.inter(
-                                        color: const Color.fromRGBO(255, 255, 255, 1),
-                                        fontSize: 16,
-                                        letterSpacing: 0,
-                                        fontWeight: FontWeight.normal,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                            ),
-                            const SizedBox(height: 10),
-                          ],
+                              ),
+                              const SizedBox(height: 10),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -379,46 +384,59 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
                         ),
                         const SizedBox(height: 16),
                         _cholesteatomaResult != null
-                            ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildDiagnosisRow(
-                                    'Cholesteatoma Identified:',
-                                    _cholesteatomaResult?.isCholesteatoma != null
-                                        ? (_cholesteatomaResult?.isCholesteatoma == true ? 'Yes' : 'No')
-                                        : 'Unknown', // Handle null case
-                                    _cholesteatomaResult?.isCholesteatoma != null
-                                        ? (_cholesteatomaResult?.isCholesteatoma == true ? Colors.red : Colors.green)
-                                        : Colors.black, // Handle null case
-                                  ),
-                                  _buildDiagnosisRow(
-                                    'Current Stage:',
-                                    _cholesteatomaResult?.stage ?? 'N/A',
+                            ? _cholesteatomaResult?.prediction == 'invalid'
+                                ? _buildDiagnosisRow(
+                                    'Invalid:',
+                                    'An irrelevant image has been submitted.',
                                     Colors.black,
-                                  ),
-                                  _buildDiagnosisRow(
-                                    'Suggestions:',
-                                    _cholesteatomaResult?.suggestions ?? 'No suggestions available',
-                                    Colors.black,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
+                                  )
+                                : Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      _buildActionButton(
-                                        'Reject',
-                                        Colors.red,
-                                        () => _handleDone(false),
+                                      _buildDiagnosisRow(
+                                        'Cholesteatoma Identified:',
+                                        _cholesteatomaResult?.isCholesteatoma != null
+                                            ? (_cholesteatomaResult?.isCholesteatoma == true ? 'Yes' : 'No')
+                                            : 'Unknown', // Handle null case
+                                        _cholesteatomaResult?.isCholesteatoma != null
+                                            ? (_cholesteatomaResult?.isCholesteatoma == true ? Colors.red : Colors.green)
+                                            : Colors.black, // Handle null case
                                       ),
-                                      const SizedBox(width: 8),
-                                      _buildActionButton(
-                                        'Accept',
-                                        Colors.green,
-                                        () => _handleDone(true),
+                                      _buildDiagnosisRow(
+                                        'Current Stage:',
+                                        _cholesteatomaResult?.stage ?? 'N/A',
+                                        Colors.black,
+                                      ),
+                                      _buildDiagnosisRow(
+                                        'Suggestions:',
+                                        _cholesteatomaResult?.suggestions ?? 'No suggestions available',
+                                        Colors.black,
+                                      ),
+                                      _buildDiagnosisRow(
+                                        'Confidence Score:',
+                                        _cholesteatomaResult?.confidenceScore != null
+                                            ? ((_cholesteatomaResult!.confidenceScore! * 100).floor() / 100).toStringAsFixed(2)
+                                            : 'N/A',
+                                        Colors.black,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          _buildActionButton(
+                                            'Reject',
+                                            Colors.red,
+                                            () => _handleDone(false),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          _buildActionButton(
+                                            'Accept',
+                                            Colors.green,
+                                            () => _handleDone(true),
+                                          ),
+                                        ],
                                       ),
                                     ],
-                                  ),
-                                ],
-                              )
+                                  )
                             : Align(
                                 alignment: Alignment.center,
                                 child: Text(

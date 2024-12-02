@@ -55,9 +55,21 @@ class DiagnosisResult {
   final bool? isCholesteatoma;
 
   final String? stage;
+
   final String? suggestions;
 
-  DiagnosisResult({this.isCholesteatoma, this.stage, this.suggestions});
+  @JsonKey(name: 'confidenceScore')
+  final double? confidenceScore;
+
+  final String? prediction; // Can be "valid", "invalid", or "N/A"
+
+  DiagnosisResult({
+    this.isCholesteatoma,
+    this.stage,
+    this.suggestions,
+    this.confidenceScore,
+    this.prediction,
+  });
 
   factory DiagnosisResult.fromJson(Map<String, dynamic> json) => _$DiagnosisResultFromJson(json);
 

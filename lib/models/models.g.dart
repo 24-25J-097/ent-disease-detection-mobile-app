@@ -93,6 +93,8 @@ DiagnosisResult _$DiagnosisResultFromJson(Map<String, dynamic> json) =>
       isCholesteatoma: json['isCholesteatoma'] as bool?,
       stage: json['stage'] as String?,
       suggestions: json['suggestions'] as String?,
+      confidenceScore: (json['confidenceScore'] as num?)?.toDouble(),
+      prediction: json['prediction'] as String?,
     );
 
 Map<String, dynamic> _$DiagnosisResultToJson(DiagnosisResult instance) =>
@@ -100,4 +102,6 @@ Map<String, dynamic> _$DiagnosisResultToJson(DiagnosisResult instance) =>
       'isCholesteatoma': instance.isCholesteatoma,
       'stage': instance.stage,
       'suggestions': instance.suggestions,
+      'confidenceScore': instance.confidenceScore,
+      'prediction': instance.prediction,
     };
