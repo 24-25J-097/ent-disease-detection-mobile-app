@@ -7,6 +7,7 @@ class Assets {
   static const String featuresCholesteatoma = 'assets/images/features/cholesteatoma.jpg';
   static const String featuresPharyngitis = 'assets/images/features/pharyngitis.jpg';
   static const String featuresSinusitis = 'assets/images/features/sinusitis.jpg';
+  static const String iconIcon = 'assets/icon/icon.png';
   static const String imagesAction = 'assets/images/action.png';
   static const String imagesAgent = 'assets/images/agent.png';
   static const String imagesBgDecoration = 'assets/images/bg-decoration.png';

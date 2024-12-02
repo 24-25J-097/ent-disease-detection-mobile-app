@@ -63,6 +63,7 @@ dev_dependencies:
   flutter_lints: ^4.0.0
   build_runner: ^2.4.13
   json_serializable: ^6.6.1
+  flutter_launcher_icons: ^0.14.1
 
 dependency_overrides:
   json_serializable: ^6.6.1
