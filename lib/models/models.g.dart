@@ -8,14 +8,20 @@ part of 'models.dart';
 
 SinusitisResult _$SinusitisResultFromJson(Map<String, dynamic> json) =>
     SinusitisResult(
+      isSinusitis: json['isSinusitis'] as bool,
+      label: json['label'] as String,
+      suggestions: json['suggestions'] as String,
       prediction: $enumDecode(_$SinusitisResultEnumEnumMap, json['prediction']),
       confidenceScore: json['confidence_score'] as num,
     );
 
 Map<String, dynamic> _$SinusitisResultToJson(SinusitisResult instance) =>
     <String, dynamic>{
+      'isSinusitis': instance.isSinusitis,
       'prediction': _$SinusitisResultEnumEnumMap[instance.prediction]!,
       'confidence_score': instance.confidenceScore,
+      'label': instance.label,
+      'suggestions': instance.suggestions,
     };
 
 const _$SinusitisResultEnumEnumMap = {

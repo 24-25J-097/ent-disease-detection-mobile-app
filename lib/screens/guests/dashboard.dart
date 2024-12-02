@@ -1,6 +1,6 @@
 import 'package:ent_insight_app/screens/cholesteatoma/cholesteatoma_diagnosis_form.dart';
 import 'package:ent_insight_app/screens/pharyngitis/create_pharyngitis_report.dart';
-import 'package:ent_insight_app/screens/sinusitis/detect-form.dart';
+import 'package:ent_insight_app/screens/sinusitis/sinusitis_analyze_form.dart';
 import 'package:ent_insight_app/utils/theme_consts.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
