@@ -147,27 +147,45 @@ class _SinusitisAnaliseFormState extends State<SinusitisAnaliseForm> {
                     title: "Identify Sinusitis",
                   ),
                   const SizedBox(height: 20),
-                  Container(
-                      height: 200,
-                      decoration: BoxDecoration(
-                        borderRadius: BorderRadius.circular(8),
-                        image: const DecorationImage(
-                            image: AssetImage(
-                              "assets/images/sinusitis.png",
+                  analysisResult != null && _imageController.name.isNotEmpty
+                      ? ClipRRect(
+                          borderRadius: BorderRadius.circular(8.0),
+                          child: Image.file(
+                            File(_imageController.path),
+                            // width: MediaQuery.of(context).size.width - 40,
+                            // height: 200,
+                            width: 220,
+                            fit: BoxFit.cover,
+                            errorBuilder: (context, error, stackTrace) {
+                              if (kDebugMode) {
+                                print(":::::::::::::::::::::::: FadeInImage imageErrorBuilder: ${error.toString()}");
+                              }
+                              return Image.asset('assets/images/img-placeholder.jpg', fit: BoxFit.cover);
+                            },
+                          ),
+                        )
+                      : Container(
+                          height: 200,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(8),
+                            image: const DecorationImage(
+                              image: AssetImage(
+                                "assets/images/sinusitis.png",
+                              ),
+                              fit: BoxFit.fitWidth,
                             ),
-                            fit: BoxFit.fitWidth),
-                      )),
+                          )),
                   const SizedBox(height: 20),
                   // File Picker Section
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Text(
+                      const Text(
                         "Water's View X-Ray:",
                         style: TextStyle(
                           fontWeight: FontWeight.bold,
-                          fontSize: 16,
-                          color: fileError == null ? Colors.black : Colors.red,
+                          fontSize: 18,
+                          color: Colors.blueAccent,
                         ),
                       ),
                       const SizedBox(height: 10),
@@ -176,7 +194,7 @@ class _SinusitisAnaliseFormState extends State<SinusitisAnaliseForm> {
                         child: Container(
                           padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
                           decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(50),
+                            borderRadius: BorderRadius.circular(12),
                             color: const Color(0x1492dbff),
                             border: Border.all(
                               color: fileError == null ? Colors.blueAccent : Colors.red,
@@ -239,43 +257,76 @@ class _SinusitisAnaliseFormState extends State<SinusitisAnaliseForm> {
                       ),
                     ),
                   ),
-                  if (analysisResult != null)
-                    Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.center,
-                      children: [
-                        if (_imageController.name.isNotEmpty)
-                          ClipRRect(
-                            borderRadius: BorderRadius.circular(8.0),
-                            child: Image.file(
-                              File(_imageController.path),
-                              width: 220,
-                              fit: BoxFit.cover,
-                              errorBuilder: (context, error, stackTrace) {
-                                if (kDebugMode) {
-                                  print(":::::::::::::::::::::::: FadeInImage imageErrorBuilder: ${error.toString()}");
-                                }
-                                return Image.asset('assets/images/img-placeholder.jpg', fit: BoxFit.cover);
-                              },
-                            ),
-                          ),
-                        const SizedBox(height: 10),
-                        Text(
-                          analysisResult?.prediction == SinusitisResultEnum.invalid ? "Invalid Image" : "Sinusitis Severity: ${analysisResult?.prediction.name}",
-                          style: TextStyle(
-                            fontSize: 18,
-                            fontWeight: FontWeight.bold,
-                            color: analysisResult?.getStatusColor(),
-                          ),
-                        ),
-                        const SizedBox(height: 10),
-                        Text(
-                          analysisResult?.prediction == SinusitisResultEnum.invalid ? "The uploaded file is not a valid X-Ray." : "Analysis successfully completed.",
-                          textAlign: TextAlign.center,
-                          style: const TextStyle(color: Colors.black54),
+                  Container(
+                    padding: const EdgeInsets.all(16),
+                    width: double.infinity,
+                    constraints: const BoxConstraints(
+                      maxWidth: 600, // Equivalent to max-w-lg
+                      minHeight: 200, // Equivalent to min-h-[200px]
+                    ),
+                    decoration: BoxDecoration(
+                      color: Colors.white,
+                      borderRadius: BorderRadius.circular(16),
+                      boxShadow: [
+                        BoxShadow(
+                          color: Colors.black.withOpacity(0.1),
+                          blurRadius: 8,
+                          spreadRadius: 4,
                         ),
                       ],
-                    )
+                    ),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Align(
+                          alignment: Alignment.center,
+                          child: Text(
+                            'Diagnosis Result',
+                            style: TextStyle(
+                              color: Colors.blue[500],
+                              fontSize: 20,
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+                        ),
+                        const SizedBox(height: 16),
+                        analysisResult != null
+                            ? Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      InformationRow(
+                                        label: 'Sinusitis Identified:',
+                                        value: analysisResult?.isSinusitis != null ? (analysisResult?.isSinusitis == true ? 'Yes' : 'No') : 'Unknown', // Handle null case
+                                        valueColor: (analysisResult?.isSinusitis == true ? Colors.red : Colors.green), // Handle null case
+                                      ),
+                                      InformationRow(
+                                        label: 'Current Stage:',
+                                        value: analysisResult?.label ?? 'N/A',
+                                        valueColor: analysisResult!.getStatusColor(),
+                                      ),
+                                      InformationRow(
+                                        label: 'Suggestions:',
+                                        value: analysisResult?.suggestions ?? 'No suggestions available',
+                                        valueColor: Colors.black,
+                                      ),
+                                      InformationRow(
+                                        label: 'Confidence Score:',
+                                        value: ((analysisResult!.confidenceScore * 100).floor() / 100).toStringAsFixed(2),
+                                        valueColor: Colors.black,
+                                      ),
+                                    ],
+                                  )
+                            : Align(
+                                alignment: Alignment.center,
+                                child: Text(
+                                  'No diagnosis available',
+                                  style: TextStyle(color: Colors.grey[500], fontSize: 14),
+                                ),
+                              ),
+                      ],
+                    ),
+                  ),
                 ],
               ),
             ),

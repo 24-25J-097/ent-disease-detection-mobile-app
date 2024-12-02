@@ -24,13 +24,12 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
   final TextEditingController _patientIdController = TextEditingController();
   final TextEditingController _additionalInfoController = TextEditingController();
   late XFile _imageController = XFile('');
-  String? fileError;
-  String? patientIdError;
-  String? patientIdErrMsg;
-  bool isDisable = false;
-  bool isLoading = false;
+  String? _fileError;
+  bool _isDisable = false;
+  bool _isLoading = false;
 
   DiagnosisResult? _cholesteatomaResult;
+  String? _diagnosisId;
 
   void pickFiles(ImageSource source) async {
     try {
@@ -42,20 +41,20 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
       if (result != null) {
         _imageController = result;
         setState(() {
-          fileError = null;
+          _fileError = null;
           _cholesteatomaResult = null;
         });
       }
     } on PlatformException catch (e) {
       setState(() {
-        fileError = e.message;
+        _fileError = e.message;
       });
       if (kDebugMode) {
         print('Unsupported operation: $e');
       }
     } catch (e) {
       setState(() {
-        fileError = e.toString();
+        _fileError = e.toString();
       });
       if (kDebugMode) {
         print(e.toString());
@@ -64,13 +63,13 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
   }
 
   Future<void> _diagnose() async {
-    if (isLoading) return;
-    setState(() => isLoading = true);
+    if (_isLoading || _isDisable) return;
+    setState(() => _isLoading = true);
 
     if (_imageController.name.isEmpty || _imageController.name == '') {
       setState(() {
-        fileError = "Please choose the image file";
-        isLoading = false;
+        _fileError = "Please choose the image file";
+        _isLoading = false;
       });
     }
 
@@ -85,11 +84,16 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
 
       try {
         Cholesteatoma? cholesteatomaData = await CholesteatomaDiagnosisService.cholesteatomaDiagnosis(formData);
-        _cholesteatomaResult = DiagnosisResult(
-          isCholesteatoma: cholesteatomaData?.diagnosisResult?.isCholesteatoma,
-          stage: cholesteatomaData?.diagnosisResult?.stage,
-          suggestions: cholesteatomaData?.diagnosisResult?.suggestions,
-        );
+        setState(() {
+          _cholesteatomaResult = DiagnosisResult(
+            isCholesteatoma: cholesteatomaData?.diagnosisResult?.isCholesteatoma,
+            stage: cholesteatomaData?.diagnosisResult?.stage,
+            suggestions: cholesteatomaData?.diagnosisResult?.suggestions,
+            confidenceScore: cholesteatomaData?.diagnosisResult?.confidenceScore,
+            prediction: cholesteatomaData?.diagnosisResult?.prediction,
+          );
+          _diagnosisId = cholesteatomaData?.id;
+        });
       } catch (e) {
         debugPrint(e.toString());
         if (mounted) {
@@ -105,7 +109,7 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
         }
       } finally {
         await EasyLoading.dismiss();
-        setState(() => isLoading = false);
+        setState(() => _isLoading = false);
         // if (mounted) {
         //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const DiagnosisReports()));
         // }
@@ -114,50 +118,44 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
   }
 
   Future<void> _handleDone(bool accept) async {
-    // try {
-    //   setState(() {
-    //     isDisable = true;
-    //   });
-    //
-    //   final data = DiagnosisAcceptance(
-    //     diagnosisId: diagnosisResult?['diagnosisId'] ?? '',
-    //     accept: accept,
-    //   );
-    //
-    //   final response = await DiagnosisService.cholesteatomaDiagnosisAccept(data);
-    //
-    //   if (response['success']) {
-    //     notifySuccess(response['message']);
-    //   }
-    // } catch (error) {
-    //   if (error.toString().contains('Failed to accept diagnosis')) {
-    //     setState(() {
-    //       error = 'An unexpected error occurred. Please try again.';
-    //     });
-    //   } else {
-    //     setState(() {
-    //       error = error.toString();
-    //     });
-    //     notifyError(error.toString());
-    //   }
-    // } finally {
-    //   setState(() {
-    //     isDisable = false;
-    //     diagnosisResult = null;
-    //     patientId = '';
-    //     additionalInfo = '';
-    //     file = null;
-    //     imagePreview = '';
-    //     formKey.currentState?.reset();
-    //   });
-    //
-    //   // Assuming you're using a method to refresh or reload the page
-    //   // For example:
-    //   // Navigator.pushReplacement(
-    //   //   context,
-    //   //   MaterialPageRoute(builder: (context) => DiagnosisScreen()),
-    //   // );
-    // }
+    if (_isDisable || _isLoading) return;
+    try {
+      EasyLoading.show(status: "Submitting...");
+      setState(() {
+        _isDisable = true;
+      });
+
+      final data = {"diagnosisId": _diagnosisId, "accept": accept};
+
+      final responseMsg = await CholesteatomaDiagnosisService.cholesteatomaDiagnosisAccept(data);
+      if (responseMsg != null && mounted) {
+        AppSnackBarWidget(
+          context: context,
+          bgColor: Colors.green,
+        ).show(message: responseMsg);
+      }
+    } catch (error) {
+      debugPrint(error.toString());
+      if (mounted) {
+        AppSnackBarWidget(
+          context: context,
+          bgColor: Colors.red,
+        ).show(message: error.toString());
+      }
+    } finally {
+      await EasyLoading.dismiss();
+      _formKey.currentState?.reset();
+      _imageController = XFile('');
+      _patientIdController.clear();
+      _additionalInfoController.clear();
+      setState(() {
+        _isDisable = false;
+        _isLoading = false;
+        _fileError = "";
+        _cholesteatomaResult = null;
+        _diagnosisId = null;
+      });
+    }
   }
 
   @override
@@ -216,133 +214,136 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
                   Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      Form(
-                        key: _formKey,
-                        child: Column(
-                          children: [
-                            const Align(
-                              alignment: Alignment.centerLeft,
-                              child: Text(
-                                "Upload Middle Ear Endoscopy",
-                                style: TextStyle(
-                                  fontWeight: FontWeight.bold,
-                                  fontSize: 18,
-                                  color: Colors.blueAccent,
+                      IgnorePointer(
+                        ignoring: _cholesteatomaResult != null,
+                        child: Form(
+                          key: _formKey,
+                          child: Column(
+                            children: [
+                              const Align(
+                                alignment: Alignment.centerLeft,
+                                child: Text(
+                                  "Upload Middle Ear Endoscopy",
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.bold,
+                                    fontSize: 18,
+                                    color: Colors.blueAccent,
+                                  ),
+                                  textAlign: TextAlign.left,
                                 ),
-                                textAlign: TextAlign.left,
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              controller: _patientIdController,
-                              validator: (patientId) {
-                                if ((patientId == null || patientId.isEmpty)) {
-                                  return "Please enter the Patient ID";
-                                }
-                                if (patientId.length < 5) {
-                                  return "Patient ID must be at least 5 characters long";
-                                }
-                                return null;
-                              },
-                              decoration: const InputDecoration(
-                                labelText: "Patient Id *",
-                                hintText: "Enter your Patient Id",
-                                suffixIcon: SizedBox(),
+                              const SizedBox(height: 20),
+                              TextFormField(
+                                controller: _patientIdController,
+                                validator: (patientId) {
+                                  if ((patientId == null || patientId.isEmpty)) {
+                                    return "Please enter the Patient ID";
+                                  }
+                                  if (patientId.length < 5) {
+                                    return "Patient ID must be at least 5 characters long";
+                                  }
+                                  return null;
+                                },
+                                decoration: const InputDecoration(
+                                  labelText: "Patient Id *",
+                                  hintText: "Enter your Patient Id",
+                                  suffixIcon: SizedBox(),
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            TextFormField(
-                              controller: _additionalInfoController,
-                              decoration: const InputDecoration(
-                                labelText: "Additional Information",
-                                hintText: "Enter any additional details (optional)",
-                                suffixIcon: SizedBox(),
+                              const SizedBox(height: 20),
+                              TextFormField(
+                                controller: _additionalInfoController,
+                                decoration: const InputDecoration(
+                                  labelText: "Additional Information",
+                                  hintText: "Enter any additional details (optional)",
+                                  suffixIcon: SizedBox(),
+                                ),
                               ),
-                            ),
-                            const SizedBox(height: 20),
-                            GestureDetector(
-                              onTap: () => chooseImagePickerSource(context, pickFiles),
-                              child: Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                                decoration: BoxDecoration(
-                                  borderRadius: BorderRadius.circular(12),
-                                  color: const Color(0x1492dbff),
-                                  border: Border.all(
-                                    color: fileError == null ? Colors.lightBlue : Colors.red[900]!,
+                              const SizedBox(height: 20),
+                              GestureDetector(
+                                onTap: () => chooseImagePickerSource(context, pickFiles),
+                                child: Container(
+                                  padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                                  decoration: BoxDecoration(
+                                    borderRadius: BorderRadius.circular(12),
+                                    color: const Color(0x1492dbff),
+                                    border: Border.all(
+                                      color: _fileError == null ? Colors.lightBlue : Colors.red[900]!,
+                                    ),
+                                  ),
+                                  child: const Row(
+                                    mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        "Choose Endoscopy",
+                                        style: TextStyle(fontSize: 16, color: Colors.blueAccent),
+                                      ),
+                                      Icon(Icons.upload_file, color: Colors.blueAccent),
+                                    ],
                                   ),
                                 ),
-                                child: const Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                                  children: [
-                                    Text(
-                                      "Choose Endoscopy",
-                                      style: TextStyle(fontSize: 16, color: Colors.blueAccent),
-                                    ),
-                                    Icon(Icons.upload_file, color: Colors.blueAccent),
-                                  ],
-                                ),
                               ),
-                            ),
-                            if (fileError != null)
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 10, top: 3),
-                                  child: Text(fileError!,
-                                      style: TextStyle(
-                                        color: Colors.red[900],
+                              if (_fileError != null)
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 10, top: 3),
+                                    child: Text(_fileError!,
+                                        style: TextStyle(
+                                          color: Colors.red[900],
+                                          fontSize: 12,
+                                        )),
+                                  ),
+                                ),
+                              if (_imageController.name.isNotEmpty)
+                                Align(
+                                  alignment: Alignment.centerLeft,
+                                  child: Padding(
+                                    padding: const EdgeInsets.only(left: 10, top: 3),
+                                    child: Text(
+                                      _imageController.name,
+                                      overflow: TextOverflow.ellipsis,
+                                      softWrap: true,
+                                      style: const TextStyle(
+                                        color: Colors.black45,
                                         fontSize: 12,
-                                      )),
-                                ),
-                              ),
-                            if (_imageController.name.isNotEmpty)
-                              Align(
-                                alignment: Alignment.centerLeft,
-                                child: Padding(
-                                  padding: const EdgeInsets.only(left: 10, top: 3),
-                                  child: Text(
-                                    _imageController.name,
-                                    overflow: TextOverflow.ellipsis,
-                                    softWrap: true,
-                                    style: const TextStyle(
-                                      color: Colors.black45,
-                                      fontSize: 12,
+                                      ),
                                     ),
                                   ),
                                 ),
-                              ),
-                            const SizedBox(height: 20),
-                            MaterialButton(
-                              onPressed: _diagnose,
-                              minWidth: double.infinity,
-                              height: 48,
-                              shape: RoundedRectangleBorder(
-                                borderRadius: BorderRadius.circular(20),
-                              ),
-                              color: const Color(0xFF1C2A3A),
-                              child: isLoading
-                                  ? const SizedBox(
-                                      width: 16, // Adjust size as needed
-                                      height: 16,
-                                      child: CircularProgressIndicator(
-                                        strokeWidth: 2,
-                                        valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                              const SizedBox(height: 20),
+                              MaterialButton(
+                                onPressed: _diagnose,
+                                minWidth: double.infinity,
+                                height: 48,
+                                shape: RoundedRectangleBorder(
+                                  borderRadius: BorderRadius.circular(20),
+                                ),
+                                color: const Color(0xFF1C2A3A),
+                                child: _isLoading
+                                    ? const SizedBox(
+                                        width: 16, // Adjust size as needed
+                                        height: 16,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                        ),
+                                      )
+                                    : Text(
+                                        'Diagnose',
+                                        textAlign: TextAlign.left,
+                                        style: GoogleFonts.inter(
+                                          color: const Color.fromRGBO(255, 255, 255, 1),
+                                          fontSize: 16,
+                                          letterSpacing: 0,
+                                          fontWeight: FontWeight.normal,
+                                          height: 1.5,
+                                        ),
                                       ),
-                                    )
-                                  : Text(
-                                      'Diagnose',
-                                      textAlign: TextAlign.left,
-                                      style: GoogleFonts.inter(
-                                        color: const Color.fromRGBO(255, 255, 255, 1),
-                                        fontSize: 16,
-                                        letterSpacing: 0,
-                                        fontWeight: FontWeight.normal,
-                                        height: 1.5,
-                                      ),
-                                    ),
-                            ),
-                            const SizedBox(height: 10),
-                          ],
+                              ),
+                              const SizedBox(height: 10),
+                            ],
+                          ),
                         ),
                       ),
                     ],
@@ -383,46 +384,59 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
                         ),
                         const SizedBox(height: 16),
                         _cholesteatomaResult != null
-                            ? Column(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  _buildDiagnosisRow(
-                                    'Cholesteatoma Identified:',
-                                    _cholesteatomaResult?.isCholesteatoma != null
-                                        ? (_cholesteatomaResult?.isCholesteatoma == true ? 'Yes' : 'No')
-                                        : 'Unknown', // Handle null case
-                                    _cholesteatomaResult?.isCholesteatoma != null
-                                        ? (_cholesteatomaResult?.isCholesteatoma == true ? Colors.red : Colors.green)
-                                        : Colors.black, // Handle null case
-                                  ),
-                                  _buildDiagnosisRow(
-                                    'Current Stage:',
-                                    _cholesteatomaResult?.stage ?? 'N/A',
+                            ? _cholesteatomaResult?.prediction == 'invalid'
+                                ? _buildDiagnosisRow(
+                                    'Invalid:',
+                                    'An irrelevant image has been submitted.',
                                     Colors.black,
-                                  ),
-                                  _buildDiagnosisRow(
-                                    'Suggestions:',
-                                    _cholesteatomaResult?.suggestions ?? 'No suggestions available',
-                                    Colors.black,
-                                  ),
-                                  Row(
-                                    mainAxisAlignment: MainAxisAlignment.end,
+                                  )
+                                : Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
-                                      _buildActionButton(
-                                        'Reject',
-                                        Colors.red,
-                                        () => _handleDone(false),
+                                      _buildDiagnosisRow(
+                                        'Cholesteatoma Identified:',
+                                        _cholesteatomaResult?.isCholesteatoma != null
+                                            ? (_cholesteatomaResult?.isCholesteatoma == true ? 'Yes' : 'No')
+                                            : 'Unknown', // Handle null case
+                                        _cholesteatomaResult?.isCholesteatoma != null
+                                            ? (_cholesteatomaResult?.isCholesteatoma == true ? Colors.red : Colors.green)
+                                            : Colors.black, // Handle null case
                                       ),
-                                      const SizedBox(width: 8),
-                                      _buildActionButton(
-                                        'Accept',
-                                        Colors.green,
-                                        () => _handleDone(true),
+                                      _buildDiagnosisRow(
+                                        'Current Stage:',
+                                        _cholesteatomaResult?.stage ?? 'N/A',
+                                        Colors.black,
+                                      ),
+                                      _buildDiagnosisRow(
+                                        'Suggestions:',
+                                        _cholesteatomaResult?.suggestions ?? 'No suggestions available',
+                                        Colors.black,
+                                      ),
+                                      _buildDiagnosisRow(
+                                        'Confidence Score:',
+                                        _cholesteatomaResult?.confidenceScore != null
+                                            ? ((_cholesteatomaResult!.confidenceScore! * 100).floor() / 100).toStringAsFixed(2)
+                                            : 'N/A',
+                                        Colors.black,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment: MainAxisAlignment.end,
+                                        children: [
+                                          _buildActionButton(
+                                            'Reject',
+                                            Colors.red,
+                                            () => _handleDone(false),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          _buildActionButton(
+                                            'Accept',
+                                            Colors.green,
+                                            () => _handleDone(true),
+                                          ),
+                                        ],
                                       ),
                                     ],
-                                  ),
-                                ],
-                              )
+                                  )
                             : Align(
                                 alignment: Alignment.center,
                                 child: Text(

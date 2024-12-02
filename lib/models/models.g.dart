@@ -8,14 +8,20 @@ part of 'models.dart';
 
 SinusitisResult _$SinusitisResultFromJson(Map<String, dynamic> json) =>
     SinusitisResult(
+      isSinusitis: json['isSinusitis'] as bool,
+      label: json['label'] as String,
+      suggestions: json['suggestions'] as String,
       prediction: $enumDecode(_$SinusitisResultEnumEnumMap, json['prediction']),
       confidenceScore: json['confidence_score'] as num,
     );
 
 Map<String, dynamic> _$SinusitisResultToJson(SinusitisResult instance) =>
     <String, dynamic>{
+      'isSinusitis': instance.isSinusitis,
       'prediction': _$SinusitisResultEnumEnumMap[instance.prediction]!,
       'confidence_score': instance.confidenceScore,
+      'label': instance.label,
+      'suggestions': instance.suggestions,
     };
 
 const _$SinusitisResultEnumEnumMap = {
@@ -31,12 +37,18 @@ PharyngitisResult _$PharyngitisResultFromJson(Map<String, dynamic> json) =>
       prediction:
           $enumDecode(_$PharyngitisResultEnumEnumMap, json['prediction']),
       confidenceScore: json['confidence_score'] as num,
+      isDiseased: json['isDiseased'] as bool,
+      label: json['label'] as String,
+      suggestions: json['suggestions'] as String,
     );
 
 Map<String, dynamic> _$PharyngitisResultToJson(PharyngitisResult instance) =>
     <String, dynamic>{
+      'isDiseased': instance.isDiseased,
       'prediction': _$PharyngitisResultEnumEnumMap[instance.prediction]!,
       'confidence_score': instance.confidenceScore,
+      'label': instance.label,
+      'suggestions': instance.suggestions,
     };
 
 const _$PharyngitisResultEnumEnumMap = {
@@ -93,6 +105,8 @@ DiagnosisResult _$DiagnosisResultFromJson(Map<String, dynamic> json) =>
       isCholesteatoma: json['isCholesteatoma'] as bool?,
       stage: json['stage'] as String?,
       suggestions: json['suggestions'] as String?,
+      confidenceScore: (json['confidenceScore'] as num?)?.toDouble(),
+      prediction: json['prediction'] as String?,
     );
 
 Map<String, dynamic> _$DiagnosisResultToJson(DiagnosisResult instance) =>
@@ -100,4 +114,6 @@ Map<String, dynamic> _$DiagnosisResultToJson(DiagnosisResult instance) =>
       'isCholesteatoma': instance.isCholesteatoma,
       'stage': instance.stage,
       'suggestions': instance.suggestions,
+      'confidenceScore': instance.confidenceScore,
+      'prediction': instance.prediction,
     };
