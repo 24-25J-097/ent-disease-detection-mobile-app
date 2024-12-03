@@ -154,7 +154,7 @@ class _SinusitisAnaliseFormState extends State<SinusitisAnaliseForm> {
                     title: "Identify Sinusitis",
                   ),
                   const SizedBox(height: 20),
-                  analysisResult != null && _imageController.name.isNotEmpty
+                  _imageController.name.isNotEmpty
                       ? ClipRRect(
                           borderRadius: BorderRadius.circular(8.0),
                           child: Image.file(
