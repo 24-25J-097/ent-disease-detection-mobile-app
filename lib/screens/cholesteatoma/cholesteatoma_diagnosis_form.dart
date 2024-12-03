@@ -117,6 +117,21 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
     }
   }
 
+  Future<void> _handleRest() async {
+    await EasyLoading.dismiss();
+    _formKey.currentState?.reset();
+    _imageController = XFile('');
+    _patientIdController.clear();
+    _additionalInfoController.clear();
+    setState(() {
+      _isDisable = false;
+      _isLoading = false;
+      _fileError = null;
+      _cholesteatomaResult = null;
+      _diagnosisId = null;
+    });
+  }
+
   Future<void> _handleDone(bool accept) async {
     if (_isDisable || _isLoading) return;
     try {
@@ -151,7 +166,7 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
       setState(() {
         _isDisable = false;
         _isLoading = false;
-        _fileError = "";
+        _fileError = null;
         _cholesteatomaResult = null;
         _diagnosisId = null;
       });
@@ -385,10 +400,32 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
                         const SizedBox(height: 16),
                         _cholesteatomaResult != null
                             ? _cholesteatomaResult?.prediction == 'invalid'
-                                ? _buildDiagnosisRow(
-                                    'Invalid:',
-                                    'An irrelevant image has been submitted.',
-                                    Colors.black,
+                                ? Column(
+                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    children: [
+                                      _buildDiagnosisRow(
+                                        'Invalid:',
+                                        'An irrelevant image has been submitted.',
+                                        Colors.red,
+                                      ),
+                                      const Text(
+                                        'Please upload valid endoscopy image.',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: _buildActionButton(
+                                          'Reset',
+                                          Colors.grey,
+                                          () => _handleRest(),
+                                        ),
+                                      )
+                                    ],
                                   )
                                 : Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
@@ -460,24 +497,27 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
   Widget _buildDiagnosisRow(String label, String value, Color valueColor) {
     return Padding(
       padding: const EdgeInsets.only(bottom: 8),
-      child: RichText(
-        text: TextSpan(
-          children: [
-            TextSpan(
-              text: '$label  ',
-              style: const TextStyle(
-                fontWeight: FontWeight.bold,
-                color: Colors.black,
-              ),
+      child: Row(
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            '$label ',
+            style: const TextStyle(
+              fontWeight: FontWeight.bold,
+              color: Colors.black,
             ),
-            TextSpan(
-              text: value,
+          ),
+          Expanded(
+            child: Text(
+              value,
               style: TextStyle(
                 color: valueColor,
               ),
+              textAlign: TextAlign.left,
+              softWrap: true,
             ),
-          ],
-        ),
+          ),
+        ],
       ),
     );
   }

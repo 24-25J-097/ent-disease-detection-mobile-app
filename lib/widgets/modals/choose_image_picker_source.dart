@@ -18,11 +18,14 @@ Future<dynamic> chooseImagePickerSource(BuildContext context, Function(ImageSour
                 },
                 child: const Row(
                   children: [
-                    Icon(Icons.camera_alt),
+                    Icon(Icons.camera_alt, color: Colors.blueAccent),
                     SizedBox(width: 10),
                     Align(
                       alignment: AlignmentDirectional.centerStart,
-                      child: Text('Camera'),
+                      child: Text(
+                        'Camera',
+                        style: TextStyle(color: Colors.blueAccent),
+                      ),
                     ),
                   ],
                 ),
@@ -37,11 +40,11 @@ Future<dynamic> chooseImagePickerSource(BuildContext context, Function(ImageSour
                 },
                 child: const Row(
                   children: [
-                    Icon(Icons.photo_library),
+                    Icon(Icons.photo_library, color: Colors.blueAccent),
                     SizedBox(width: 10),
                     Align(
                       alignment: AlignmentDirectional.centerStart,
-                      child: Text('Galley'),
+                      child: Text('Galley', style: TextStyle(color: Colors.blueAccent)),
                     ),
                   ],
                 ),
@@ -53,7 +56,7 @@ Future<dynamic> chooseImagePickerSource(BuildContext context, Function(ImageSour
                 onPressed: () => Navigator.pop(context),
                 child: const Align(
                   alignment: AlignmentDirectional.centerStart,
-                  child: Text('Cancel'),
+                  child: Text('Cancel', style: TextStyle(color: Colors.blueAccent)),
                 ),
               ),
             ),
