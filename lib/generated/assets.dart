@@ -5,6 +5,7 @@ class Assets {
   static const String errors403 = 'assets/images/errors/403.png';
   static const String errors404 = 'assets/images/errors/404.png';
   static const String featuresCholesteatoma = 'assets/images/features/cholesteatoma.jpg';
+  static const String featuresForeign = 'assets/images/features/foreign.png';
   static const String featuresPharyngitis = 'assets/images/features/pharyngitis.jpg';
   static const String featuresSinusitis = 'assets/images/features/sinusitis.jpg';
   static const String iconIcon = 'assets/icon/icon.png';
