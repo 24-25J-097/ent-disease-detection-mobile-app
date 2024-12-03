@@ -3,6 +3,7 @@ import 'dart:io';
 import 'package:dio/dio.dart';
 import 'package:ent_insight_app/models/models.dart';
 import 'package:ent_insight_app/services/sinusitis_analize_service.dart';
+import 'package:ent_insight_app/utils/check_image_extension.dart';
 import 'package:ent_insight_app/widgets/widgets.g.dart';
 import 'package:flutter/foundation.dart';
 import 'package:flutter/material.dart';
@@ -88,6 +89,12 @@ class _SinusitisAnaliseFormState extends State<SinusitisAnaliseForm> {
       setState(() {
         fileError = "Please select a X Ray!";
       });
+    } else if (!isValidFileType(_imageController.name)) {
+      setState(() {
+        fileError = "Unsupported file type! Please select a valid X-Ray image (JPEG, PNG, WebP).";
+        isLoading = false;
+      });
+      return; // Stop further execution
     } else {
       EasyLoading.show(status: "Analyzing...");
       FormData formData = FormData.fromMap({
@@ -292,7 +299,13 @@ class _SinusitisAnaliseFormState extends State<SinusitisAnaliseForm> {
                         ),
                         const SizedBox(height: 16),
                         analysisResult != null
-                            ? Column(
+                            ? analysisResult?.prediction == SinusitisResultEnum.invalid
+                                ? InformationRow(
+                                    label: 'Invalid:',
+                                    value: analysisResult!.suggestions,
+                                    valueColor: Colors.red,
+                                  )
+                                : Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       InformationRow(

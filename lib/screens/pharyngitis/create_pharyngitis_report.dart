@@ -292,13 +292,13 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
                         ),
                         const SizedBox(height: 16),
                         analysisResult != null
-                            ?/* analysisResult?.prediction == PharyngitisResultEnum.invalid
+                            ? analysisResult?.prediction == PharyngitisResultEnum.invalid
                                 ? InformationRow(
                                     label: 'Invalid:',
                                     value: analysisResult!.suggestions,
-                                    valueColor: Colors.black,
+                                    valueColor: Colors.red,
                                   )
-                                : */Column(
+                                : Column(
                                     crossAxisAlignment: CrossAxisAlignment.start,
                                     children: [
                                       InformationRow(
