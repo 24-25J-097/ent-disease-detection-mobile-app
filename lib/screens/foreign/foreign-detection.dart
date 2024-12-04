@@ -1,5 +1,6 @@
 import 'dart:convert';
 import 'dart:io';
+import 'package:ent_insight_app/configs/config.dart';
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
@@ -35,9 +36,8 @@ class CreateForeignBodiesReportState extends State<CreateForeignBodiesReport> {
       mimeType = mimeType ?? 'image/jpeg';
 
       // Validation API request
-      var validationUri = Uri.parse(
-          'https://utterly-supreme-marmoset.ngrok-free.app/run-inference/');
-
+      //'${GlobalData.baseUrl}/api/sinusitis/analyze'
+      var validationUri = Uri.parse('${GlobalData.baseUrl}/api/foreign/run-inference/');
       var validationRequest = http.MultipartRequest('POST', validationUri);
       validationRequest.headers.addAll({
         "Content-Type": "multipart/form-data",
@@ -71,8 +71,8 @@ class CreateForeignBodiesReportState extends State<CreateForeignBodiesReport> {
       }
 
       // If validation passes, proceed to analysis
-      var analysisUri =
-      Uri.parse('https://utterly-supreme-marmoset.ngrok-free.app/detect');
+      //Uri.parse('${GlobalData.baseUrl}/api/foreign/run-inference/');
+      var analysisUri = Uri.parse('${GlobalData.baseUrl}/api/foreign/foreign/detect');
 
       var analysisRequest = http.MultipartRequest('POST', analysisUri);
       analysisRequest.headers.addAll({
