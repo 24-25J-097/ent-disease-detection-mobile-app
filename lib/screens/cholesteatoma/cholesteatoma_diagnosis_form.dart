@@ -71,6 +71,11 @@ class _CholesteatomaDiagnosisFormState extends State<CholesteatomaDiagnosisForm>
         _fileError = "Please choose the image file";
         _isLoading = false;
       });
+    } else {
+      setState(() {
+        _isLoading = false;
+        _isDisable = false;
+      });
     }
 
     if (_formKey.currentState!.validate() && _imageController.name.isNotEmpty) {
