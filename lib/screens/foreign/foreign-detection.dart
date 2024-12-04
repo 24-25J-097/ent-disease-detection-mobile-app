@@ -37,7 +37,7 @@ class CreateForeignBodiesReportState extends State<CreateForeignBodiesReport> {
 
       // Validation API request
       //'${GlobalData.baseUrl}/api/sinusitis/analyze'
-      var validationUri = Uri.parse('${GlobalData.baseUrl}/api/foreign/run-inference/');
+      var validationUri = Uri.parse('${GlobalData.baseUrl}/api/foreign/run-inference');
       var validationRequest = http.MultipartRequest('POST', validationUri);
       validationRequest.headers.addAll({
         "Content-Type": "multipart/form-data",
@@ -72,7 +72,7 @@ class CreateForeignBodiesReportState extends State<CreateForeignBodiesReport> {
 
       // If validation passes, proceed to analysis
       //Uri.parse('${GlobalData.baseUrl}/api/foreign/run-inference/');
-      var analysisUri = Uri.parse('${GlobalData.baseUrl}/api/foreign/foreign/detect');
+      var analysisUri = Uri.parse('${GlobalData.baseUrl}/api/foreign/detect');
 
       var analysisRequest = http.MultipartRequest('POST', analysisUri);
       analysisRequest.headers.addAll({
