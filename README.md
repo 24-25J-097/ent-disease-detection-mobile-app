@@ -37,7 +37,7 @@ These instructions will help you set up and run the ENT Insight Flutter app on y
 ```bash
 git clone https://github.com/24-25J-097/ent-disease-detection-mobile-app.git
 
-cd ent-insight
+cd ent-disease-detection-mobile-app
 ```
 To see any misconfigurations in flutter instaltion
 ```bash
