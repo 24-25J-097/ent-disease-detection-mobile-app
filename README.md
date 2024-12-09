@@ -107,8 +107,14 @@ flutter run
  
 ### Foreign Body
 <img src="https://github.com/user-attachments/assets/a17e7931-c180-48d0-87ad-6816b77bee84" height="500">
+ 
+## **License**  
 
-## **License**
-This project is licensed under the MIT License - see the LICENSE file for details.
+Copyright (c) 2024 24-25J-097 
+
+All rights reserved. No part of this software may be reproduced, distributed, or transmitted in any form or by any means, including photocopying, recording, or other electronic or mechanical methods, without prior written permission from the author, except for brief quotations in reviews or academic references.
+
+**Unauthorized use, modification, or distribution is strictly prohibited.**
+
  
 
