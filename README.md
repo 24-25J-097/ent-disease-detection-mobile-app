@@ -90,22 +90,22 @@ flutter run
 ```
 
 ## **Screenshots**
-### Sinuitis Water's View X-Ray
+### Sinuitis Water's View X-Ray Analyze
 <img src="https://github.com/user-attachments/assets/781f9bc8-470f-44d1-9f6b-79071c0673fe" height="500">
 <img src="https://github.com/user-attachments/assets/a96a809d-86ba-44d3-b12c-69ddc8238d99" height="500">
 <img src="https://github.com/user-attachments/assets/1c8bc6c0-a4b4-48d2-b9f9-81346030e5ee" height="500">
  
 
-### Pharyngitis View X-Ray
+### Pharyngitis Oral endoscopy images Analyze
 <img src="https://github.com/user-attachments/assets/31f72d1c-d90f-4eff-a5d9-7f63f5279d96" height="500">
 <img src="https://github.com/user-attachments/assets/76e149b8-a337-4eed-b4bb-dc51a3fee225" height="500">
 <img src="https://github.com/user-attachments/assets/f32f7081-ce7b-40db-97ec-b79c46d5adc0" height="500">
  
 
-### Cholesteatoma
+### Cholesteatoma Analyze
 <img src="https://github.com/user-attachments/assets/a62c955f-dbf3-4b89-9c32-eab729fed7c4" height="500">
  
-### Foreign Body
+### Foreign Body Detection
 <img src="https://github.com/user-attachments/assets/a17e7931-c180-48d0-87ad-6816b77bee84" height="500">
  
 ## **License**  
