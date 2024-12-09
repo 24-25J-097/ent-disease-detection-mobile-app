@@ -35,7 +35,7 @@ These instructions will help you set up and run the ENT Insight Flutter app on y
 
 ### **Clone the Repository**  
 ```bash
-git clone https://github.com/your-repository/ent-insight.git
+git clone https://github.com/24-25J-097/ent-disease-detection-mobile-app.git
 
 cd ent-insight
 ```
