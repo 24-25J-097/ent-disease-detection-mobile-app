@@ -36,7 +36,7 @@ class CreateForeignBodiesReportState extends State<CreateForeignBodiesReport> {
 
       // Validation API request
       var validationUri = Uri.parse(
-          'https://utterly-supreme-marmoset.ngrok-free.app/run-inference/');
+          'https://utterly-supreme-marmoset.ngrok-free.app/api/foreign/run-inference/');
 
       var validationRequest = http.MultipartRequest('POST', validationUri);
       validationRequest.headers.addAll({
@@ -72,7 +72,7 @@ class CreateForeignBodiesReportState extends State<CreateForeignBodiesReport> {
 
       // If validation passes, proceed to analysis
       var analysisUri =
-      Uri.parse('https://utterly-supreme-marmoset.ngrok-free.app/detect');
+      Uri.parse('https://utterly-supreme-marmoset.ngrok-free.app/api/foreign/detect');
 
       var analysisRequest = http.MultipartRequest('POST', analysisUri);
       analysisRequest.headers.addAll({
