@@ -16,6 +16,7 @@ part 'buttons/button_card.dart';
 part 'buttons/button_card_wide.dart';
 //cards
 part 'cards/image_card.dart';
+part 'cards/result_info_row.dart';
 // loaders
 part 'loaders/circular_loader_widget.dart';
 // modals
