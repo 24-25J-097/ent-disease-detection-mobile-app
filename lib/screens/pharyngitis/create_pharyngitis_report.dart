@@ -11,6 +11,7 @@ import 'package:google_fonts/google_fonts.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:motion_toast/motion_toast.dart';
 
+import '../../utils/check_image_extension.dart';
 import '../../widgets/widgets.g.dart';
 
 class CreatePharyngitisReport extends StatefulWidget {
@@ -21,12 +22,17 @@ class CreatePharyngitisReport extends StatefulWidget {
 }
 
 class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
+  final _formKey = GlobalKey<FormState>();
+  final TextEditingController _patientIdController = TextEditingController();
+  final TextEditingController _additionalInfoController = TextEditingController();
   late XFile _imageController = XFile('');
-  String? fileError;
-  bool isLoading = false;
+  String? _fileError;
+  bool _isDisable = false;
+  bool _isLoading = false;
 
   // final Map<String, dynamic>? analysisResult = {"class": "Mild"}; // Placeholder for the result
-  PharyngitisResult? analysisResult;
+  PharyngitisDiagnosisResult? _analysisResult;
+  String? _diagnosisId;
 
   void pickFiles(ImageSource source) async {
     try {
@@ -46,8 +52,8 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
       if (result != null) {
         _imageController = result;
         setState(() {
-          fileError = null;
-          analysisResult = null;
+          _fileError = null;
+          _analysisResult = null;
         });
         // List<int>? fileBytes = result.files.first.bytes;
         // String fileName = result.files.first.name;
@@ -56,7 +62,7 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
         // if (fileBytes != null) {
         //   _imageController = result.files.first;
         //   setState(() {
-        //     fileError = null;
+        //     _fileError = null;
         //   });
         // } else {
         //   if (kDebugMode) {
@@ -66,14 +72,14 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
       }
     } on PlatformException catch (e) {
       setState(() {
-        fileError = e.message;
+        _fileError = e.message;
       });
       if (kDebugMode) {
         print('Unsupported operation: $e');
       }
     } catch (e) {
       setState(() {
-        fileError = e.toString();
+        _fileError = e.toString();
       });
       if (kDebugMode) {
         print(e.toString());
@@ -82,26 +88,60 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
   }
 
   Future<void> analyze() async {
-    if (isLoading) return;
+    if (_isLoading) return;
 
-    setState(() => isLoading = true);
+    setState(() => _isLoading = true);
+
     if (_imageController.name.isEmpty || _imageController.name == '') {
       setState(() {
-        fileError = "Please select a throat image!";
+        _fileError = "Please choose the image file";
+        _isLoading = false;
       });
+    } else if (!isValidFileType(_imageController.name)) {
+      setState(() {
+        _fileError = "Unsupported file type! Please select a valid X-Ray image (JPEG, PNG, WebP).";
+        _isLoading = false;
+      });
+      return; // Stop further execution
     } else {
+      setState(() {
+        _isLoading = false;
+        _isDisable = false;
+      });
+    }
+
+    if (_formKey.currentState!.validate()) {
+      _formKey.currentState?.save();
       EasyLoading.show(status: "Analyzing...");
       FormData formData = FormData.fromMap({
-        "file": await MultipartFile.fromFile(_imageController.path),
+        "patientId": _patientIdController.text,
+        "additionalInfo": _additionalInfoController.text,
+        "throatImage": await MultipartFile.fromFile(_imageController.path),
       });
 
       try {
-        analysisResult = await PharyngitisAnalyzeService.analyzeImage(formData);
-        if (analysisResult?.prediction == PharyngitisResultEnum.invalid) {
-          setState(() {
-            fileError = "Please select a valid Throat Image!";
-          });
-        }
+        Pharyngitis? analysisResult = await PharyngitisAnalyzeService.analyzeImage(formData);
+
+        // if (analysisResult?.prediction == SinusitisResultEnum.invalid) {
+        //   setState(() {
+        //     _fileError = "Please select a valid Water's view X Ray!";
+        //   });
+        // }
+        setState(() {
+          _analysisResult = PharyngitisDiagnosisResult(
+            isPharyngitis: analysisResult?.diagnosisResult?.isPharyngitis,
+            stage: analysisResult?.diagnosisResult?.stage,
+            suggestions: analysisResult?.diagnosisResult?.suggestions,
+            confidenceScore: analysisResult?.diagnosisResult?.confidenceScore,
+            prediction: analysisResult?.diagnosisResult?.prediction,
+          );
+          _diagnosisId = analysisResult?.id;
+        });
+        // if (_analysisResult?.prediction == PharyngitisResultEnum.invalid) {
+        //   setState(() {
+        //     _fileError = "Please select a valid Throat Image!";
+        //   });
+        // }
       } catch (e) {
         debugPrint(e.toString());
         if (mounted) {
@@ -117,11 +157,70 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
         }
       } finally {
         await EasyLoading.dismiss();
-        setState(() => isLoading = false);
+        setState(() => _isDisable = false);
+        setState(() => _isLoading = false);
         // if (mounted) {
         //   Navigator.of(context).pushReplacement(MaterialPageRoute(builder: (context) => const MyInquiryScreen()));
         // }
       }
+    }
+  }
+
+
+  Future<void> _handleRest() async {
+    await EasyLoading.dismiss();
+    _formKey.currentState?.reset();
+    _imageController = XFile('');
+    _patientIdController.clear();
+    _additionalInfoController.clear();
+    setState(() {
+      _isDisable = false;
+      _isLoading = false;
+      _fileError = null;
+      _analysisResult = null;
+      _diagnosisId = null;
+    });
+  }
+
+  Future<void> _handleDone(bool accept) async {
+    if (_isDisable || _isLoading) return;
+    try {
+      EasyLoading.show(status: "Submitting...");
+      setState(() {
+        _isDisable = true;
+      });
+
+      final data = {"diagnosisId": _diagnosisId, "accept": accept};
+
+      final responseMsg =
+          await PharyngitisAnalyzeService.pharyngitisDiagnosisAccept(data);
+      if (responseMsg != null && mounted) {
+        AppSnackBarWidget(
+          context: context,
+          bgColor: Colors.green,
+        ).show(message: responseMsg);
+      }
+    } catch (error) {
+      debugPrint(error.toString());
+      if (mounted) {
+        AppSnackBarWidget(
+          context: context,
+          bgColor: Colors.red,
+        ).show(message: error.toString());
+      }
+    } finally {
+      await EasyLoading.dismiss();
+      _formKey.currentState?.reset();
+      _imageController = XFile('');
+      _patientIdController.clear();
+      _additionalInfoController.clear();
+      setState(() {
+        _isDisable = false;
+        _isLoading = false;
+        _fileError = null;
+        _analysisResult = null;
+        _diagnosisId = null;
+      });
     }
   }
 
@@ -130,6 +229,8 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
     // TODO: implement dispose
     super.dispose();
     _imageController = XFile('');
+    _patientIdController.dispose();
+    _additionalInfoController.dispose();
   }
 
   @override
@@ -177,86 +278,106 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
                           )),
                   const SizedBox(height: 20),
                   // File Picker Section
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      const Text(
-                        "Acute sore throat:",
-                        style: TextStyle(
-                          fontWeight: FontWeight.bold,
-                          fontSize: 18,
-                          color: Colors.blueAccent,
+                  Form(
+                    key: _formKey,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        const Text(
+                          "Acute sore throat:",
+                          style: TextStyle(
+                            fontWeight: FontWeight.bold,
+                            fontSize: 18,
+                            color: Colors.blueAccent,
+                          ),
                         ),
-                      ),
-                      const SizedBox(height: 10),
-                      GestureDetector(
-                        onTap: () => chooseImagePickerSource(context, pickFiles),
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-                          decoration: BoxDecoration(
-                            borderRadius: BorderRadius.circular(12),
-                            color: const Color(0x1492dbff),
-                            border: Border.all(
-                              color: fileError == null ? Colors.blueAccent : Colors.red,
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          controller: _patientIdController,
+                          validator: (patientId) {
+                            if ((patientId == null || patientId.isEmpty)) {
+                              return "Please enter the Patient ID";
+                            }
+                            if (patientId.length < 5) {
+                              return "Patient ID must be at least 5 characters long";
+                            }
+                            return null;
+                          },
+                          decoration: const InputDecoration(
+                            labelText: "Patient Id *",
+                            hintText: "Enter your Patient Id",
+                            suffixIcon: SizedBox(),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        TextFormField(
+                          controller: _additionalInfoController,
+                          decoration: const InputDecoration(
+                            labelText: "Additional Information",
+                            hintText: "Enter any additional details (optional)",
+                            suffixIcon: SizedBox(),
+                          ),
+                        ),
+                        const SizedBox(height: 20),
+                        GestureDetector(
+                          onTap: () => chooseImagePickerSource(context, pickFiles),
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                            decoration: BoxDecoration(
+                              borderRadius: BorderRadius.circular(12),
+                              color: const Color(0x1492dbff),
+                              border: Border.all(
+                                color: _fileError == null ? Colors.blueAccent : Colors.red,
+                              ),
+                            ),
+                            child: const Row(
+                              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                              children: [
+                                Text("Choose throat image", style: TextStyle(fontSize: 16, color: Colors.blueAccent)),
+                                Icon(Icons.upload_file, color: Colors.blueAccent),
+                              ],
                             ),
                           ),
-                          child: const Row(
-                            mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                            children: [
-                              Text("Choose throat image", style: TextStyle(fontSize: 16, color: Colors.blueAccent)),
-                              Icon(Icons.upload_file, color: Colors.blueAccent),
-                            ],
+                        ),
+                        if (_fileError != null) Text(_fileError!, style: const TextStyle(color: Colors.red)),
+                        if (_imageController.name.isNotEmpty) Text(_imageController.name, overflow: TextOverflow.ellipsis, softWrap: true),
+                        const SizedBox(height: 20),
+                        MaterialButton(
+                          onPressed: analyze,
+                          minWidth: double.infinity,
+                          height: 48,
+                          shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(20),
                           ),
-                        ),
-                      ),
-                      if (fileError != null) Text(fileError!, style: const TextStyle(color: Colors.red)),
-                      if (_imageController.name.isNotEmpty) Text(_imageController.name, overflow: TextOverflow.ellipsis, softWrap: true),
-                    ],
-                  ),
-                  const SizedBox(height: 20),
-                  // Result Button
-                  Container(
-                    margin: const EdgeInsets.only(left: 5, right: 5, bottom: 20),
-                    width: double.infinity,
-                    height: 48,
-                    child: ElevatedButton(
-                      onPressed: () {
-                        // Placeholder logic to analyze the uploaded file and show result
-                        if (_imageController.name.isNotEmpty) {
-                          analyze();
-                        } else {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(content: Text("Please upload a valid throat image first!")),
-                          );
-                        }
-                      },
-                      style: ElevatedButton.styleFrom(
-                        backgroundColor: const Color(0xFF1C2A3A),
-                        shape: RoundedRectangleBorder(
-                          borderRadius: BorderRadius.circular(20),
-                        ),
-                      ),
-                      child: Row(
-                        mainAxisSize: MainAxisSize.min,
-                        children: [
-                          isLoading
+                          color: const Color(0xFF1C2A3A),
+                          child: _isLoading
                               ? const SizedBox(
                                   width: 16, // Adjust size as needed
                                   height: 16,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                        Colors.white),
                                   ),
                                 )
                               : Text(
                                   'Analyze',
                                   textAlign: TextAlign.left,
-                                  style: GoogleFonts.inter(color: const Color.fromRGBO(255, 255, 255, 1), fontSize: 16, letterSpacing: 0, fontWeight: FontWeight.normal, height: 1.5),
+                                  style: GoogleFonts.inter(
+                                    color:
+                                        const Color.fromRGBO(255, 255, 255, 1),
+                                    fontSize: 16,
+                                    letterSpacing: 0,
+                                    fontWeight: FontWeight.normal,
+                                    height: 1.5,
+                                  ),
                                 ),
-                        ],
-                      ),
+                        ),
+                        const SizedBox(height: 10),
+                      ],
                     ),
                   ),
+                  const SizedBox(height: 20),
                   Container(
                     padding: const EdgeInsets.all(16),
                     width: double.infinity,
@@ -281,7 +402,7 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
                         Align(
                           alignment: Alignment.center,
                           child: Text(
-                            'Diagnosis Result',
+                            'Analyzed Result',
                             style: TextStyle(
                               color: Colors.blue[500],
                               fontSize: 20,
@@ -291,35 +412,93 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
                           ),
                         ),
                         const SizedBox(height: 16),
-                        analysisResult != null
-                            ? analysisResult?.prediction == PharyngitisResultEnum.invalid
-                                ? InformationRow(
-                                    label: 'Invalid:',
-                                    value: analysisResult!.suggestions,
-                                    valueColor: Colors.red,
+                        _analysisResult != null
+                            ? _analysisResult?.prediction == 'invalid'
+                                ? Column(
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
+                                    children: [
+                                      _buildDiagnosisRow(
+                                        'Invalid:',
+                                        'An irrelevant image has been submitted.',
+                                        Colors.red,
+                                      ),
+                                      const Text(
+                                        'Please upload valid waters view xray image.',
+                                        style: TextStyle(
+                                          color: Colors.grey,
+                                          fontSize: 14,
+                                        ),
+                                        textAlign: TextAlign.center,
+                                      ),
+                                      const SizedBox(height: 10),
+                                      Align(
+                                        alignment: Alignment.centerRight,
+                                        child: _buildActionButton(
+                                          'Reset',
+                                          Colors.grey,
+                                          () => _handleRest(),
+                                        ),
+                                      )
+                                    ],
                                   )
                                 : Column(
-                                    crossAxisAlignment: CrossAxisAlignment.start,
+                                    crossAxisAlignment:
+                                        CrossAxisAlignment.start,
                                     children: [
-                                      InformationRow(
-                                        label: 'Pharyngitis Identified:',
-                                        value: analysisResult?.isDiseased != null ? (analysisResult?.isDiseased == true ? 'Yes' : 'No') : 'Unknown', // Handle null case
-                                        valueColor: (analysisResult?.isDiseased == true ? Colors.red : Colors.green), // Handle null case
+                                      _buildDiagnosisRow(
+                                        'Sinusitis Identified:',
+                                        _analysisResult?.isPharyngitis != null
+                                            ? (_analysisResult?.isPharyngitis ==
+                                                    true
+                                                ? 'Yes'
+                                                : 'No')
+                                            : 'Unknown', // Handle null case
+                                        _analysisResult?.isPharyngitis != null
+                                            ? (_analysisResult?.isPharyngitis ==
+                                                    true
+                                                ? Colors.red
+                                                : Colors.green)
+                                            : Colors.black, // Handle null case
                                       ),
-                                      InformationRow(
-                                        label: 'Current Stage:',
-                                        value: analysisResult?.label ?? 'N/A',
-                                        valueColor: analysisResult!.getStatusColor(),
+                                      _buildDiagnosisRow(
+                                        'Current Stage:',
+                                        _analysisResult?.stage ?? 'N/A',
+                                        Colors.black,
                                       ),
-                                      InformationRow(
-                                        label: 'Suggestions:',
-                                        value: analysisResult?.suggestions ?? 'No suggestions available',
-                                        valueColor: Colors.black,
+                                      _buildDiagnosisRow(
+                                        'Suggestions:',
+                                        _analysisResult?.suggestions ??
+                                            'No suggestions available',
+                                        Colors.black,
                                       ),
-                                      InformationRow(
-                                        label: 'Confidence Score:',
-                                        value: ((analysisResult!.confidenceScore * 100).floor() / 100).toStringAsFixed(2),
-                                        valueColor: Colors.black,
+                                      _buildDiagnosisRow(
+                                        'Confidence Score:',
+                                        _analysisResult?.confidenceScore != null
+                                            ? ((_analysisResult!.confidenceScore! *
+                                                            100)
+                                                        .floor() /
+                                                    100)
+                                                .toStringAsFixed(2)
+                                            : 'N/A',
+                                        Colors.black,
+                                      ),
+                                      Row(
+                                        mainAxisAlignment:
+                                            MainAxisAlignment.end,
+                                        children: [
+                                          _buildActionButton(
+                                            'Reject',
+                                            Colors.red,
+                                            () => _handleDone(false),
+                                          ),
+                                          const SizedBox(width: 8),
+                                          _buildActionButton(
+                                            'Accept',
+                                            Colors.green,
+                                            () => _handleDone(true),
+                                          ),
+                                        ],
                                       ),
                                     ],
                                   )
@@ -327,12 +506,14 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
                                 alignment: Alignment.center,
                                 child: Text(
                                   'No diagnosis available',
-                                  style: TextStyle(color: Colors.grey[500], fontSize: 14),
+                                  style: TextStyle(
+                                      color: Colors.grey[500], fontSize: 14),
                                 ),
                               ),
                       ],
                     ),
                   ),
+                  const SizedBox(height: 30),
                 ],
               ),
             ),
@@ -341,4 +522,49 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
       ),
     );
   }
+}
+
+Widget _buildDiagnosisRow(String label, String value, Color valueColor) {
+  return Padding(
+    padding: const EdgeInsets.only(bottom: 8),
+    child: Row(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      children: [
+        Text(
+          '$label ',
+          style: const TextStyle(
+            fontWeight: FontWeight.bold,
+            color: Colors.black,
+          ),
+        ),
+        Expanded(
+          child: Text(
+            value,
+            style: TextStyle(
+              color: valueColor,
+            ),
+            textAlign: TextAlign.left,
+            softWrap: true,
+          ),
+        ),
+      ],
+    ),
+  );
+}
+
+Widget _buildActionButton(String label, Color color, VoidCallback onPressed) {
+  return ElevatedButton(
+    onPressed: onPressed,
+    style: ElevatedButton.styleFrom(
+      backgroundColor: color,
+      padding: const EdgeInsets.symmetric(vertical: 4, horizontal: 24),
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(8),
+      ),
+    ),
+    child: Text(
+      label,
+      style: const TextStyle(color: Colors.white),
+    ),
+  );
 }

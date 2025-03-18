@@ -48,7 +48,7 @@ const _$SinusitisStatusEnumMap = {
 SinusitisResult _$SinusitisResultFromJson(Map<String, dynamic> json) =>
     SinusitisResult(
       severity: json['severity'] as String?,
-      isSinusitis: json['isSinusitis'] as bool,
+      isSinusitis: json['isSinusitis'] as bool?,
       suggestions: json['suggestions'] as String?,
       prediction: json['prediction'] as String?,
       confidenceScore: (json['confidenceScore'] as num?)?.toDouble(),
@@ -63,32 +63,65 @@ Map<String, dynamic> _$SinusitisResultToJson(SinusitisResult instance) =>
       'prediction': instance.prediction,
     };
 
-PharyngitisResult _$PharyngitisResultFromJson(Map<String, dynamic> json) =>
-    PharyngitisResult(
-      prediction:
-          $enumDecode(_$PharyngitisResultEnumEnumMap, json['prediction']),
-      confidenceScore: json['confidence_score'] as num,
-      isDiseased: json['isDiseased'] as bool,
-      label: json['label'] as String,
-      suggestions: json['suggestions'] as String,
+Pharyngitis _$PharyngitisFromJson(Map<String, dynamic> json) => Pharyngitis(
+      id: json['_id'] as String?,
+      diagnosticianId: json['diagnosticianId'] as String?,
+      patientId: json['patientId'] as String,
+      additionalInformation: json['additionalInformation'] as String?,
+      throatImage: json['throatImage'] as String,
+      diagnosisResult: json['diagnosisResult'] == null
+          ? null
+          : PharyngitisDiagnosisResult.fromJson(
+              json['diagnosisResult'] as Map<String, dynamic>),
+      status: $enumDecodeNullable(_$PharyngitisStatusEnumMap, json['status']),
+      accepted: json['accepted'] as bool?,
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
     );
 
-Map<String, dynamic> _$PharyngitisResultToJson(PharyngitisResult instance) =>
+Map<String, dynamic> _$PharyngitisToJson(Pharyngitis instance) =>
     <String, dynamic>{
-      'isDiseased': instance.isDiseased,
-      'prediction': _$PharyngitisResultEnumEnumMap[instance.prediction]!,
-      'confidence_score': instance.confidenceScore,
-      'label': instance.label,
-      'suggestions': instance.suggestions,
+      '_id': instance.id,
+      'diagnosticianId': instance.diagnosticianId,
+      'patientId': instance.patientId,
+      'additionalInformation': instance.additionalInformation,
+      'throatImage': instance.throatImage,
+      'diagnosisResult': instance.diagnosisResult?.toJson(),
+      'status': _$PharyngitisStatusEnumMap[instance.status],
+      'accepted': instance.accepted,
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
     };
 
-const _$PharyngitisResultEnumEnumMap = {
-  PharyngitisResultEnum.valid: 'valid',
-  PharyngitisResultEnum.invalid: 'invalid',
-  PharyngitisResultEnum.normal: 'normal',
-  PharyngitisResultEnum.moderate: 'moderate',
-  PharyngitisResultEnum.tonsillitis: 'tonsillitis',
+const _$PharyngitisStatusEnumMap = {
+  PharyngitisStatus.pending: 'pending',
+  PharyngitisStatus.diagnosed: 'diagnosed',
+  PharyngitisStatus.failed: 'failed',
 };
+
+PharyngitisDiagnosisResult _$PharyngitisDiagnosisResultFromJson(
+        Map<String, dynamic> json) =>
+    PharyngitisDiagnosisResult(
+      isPharyngitis: json['isPharyngitis'] as bool?,
+      stage: json['stage'] as String?,
+      suggestions: json['suggestions'] as String?,
+      confidenceScore: (json['confidenceScore'] as num?)?.toDouble(),
+      prediction: json['prediction'] as String?,
+    );
+
+Map<String, dynamic> _$PharyngitisDiagnosisResultToJson(
+        PharyngitisDiagnosisResult instance) =>
+    <String, dynamic>{
+      'isPharyngitis': instance.isPharyngitis,
+      'stage': instance.stage,
+      'suggestions': instance.suggestions,
+      'confidenceScore': instance.confidenceScore,
+      'prediction': instance.prediction,
+    };
 
 Cholesteatoma _$CholesteatomaFromJson(Map<String, dynamic> json) =>
     Cholesteatoma(

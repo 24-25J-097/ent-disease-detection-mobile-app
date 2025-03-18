@@ -1,55 +1,96 @@
 part of 'models.dart';
 
 @JsonSerializable(explicitToJson: true)
-class PharyngitisResult {
-  final bool isDiseased;
+class Pharyngitis {
+  @JsonKey(name: '_id')
+  final String? id;
 
-  final PharyngitisResultEnum prediction;
+  @JsonKey(name: 'diagnosticianId')
+  final String? diagnosticianId;
 
-  @JsonKey(name: 'confidence_score')
-  final num confidenceScore;
+  @JsonKey(name: 'patientId')
+  final String patientId;
 
-  final String label;
+  @JsonKey(name: 'additionalInformation')
+  final String? additionalInformation;
 
-  final String suggestions;
+  @JsonKey(name: 'throatImage')
+  final String throatImage;
 
-  PharyngitisResult({
-    required this.prediction,
-    required this.confidenceScore,
-    required this.isDiseased,
-    required this.label,
-    required this.suggestions,
+  @JsonKey(name: 'diagnosisResult')
+  final PharyngitisDiagnosisResult? diagnosisResult;
+
+  @JsonKey(name: 'status')
+  final PharyngitisStatus? status;
+
+  final bool? accepted;
+
+  @JsonKey(name: 'createdAt')
+  final DateTime? createdAt;
+
+  @JsonKey(name: 'updatedAt')
+  final DateTime? updatedAt;
+
+  Pharyngitis({
+    this.id,
+    this.diagnosticianId,
+    required this.patientId,
+    this.additionalInformation,
+    required this.throatImage,
+    this.diagnosisResult,
+    this.status,
+    this.accepted,
+    this.createdAt,
+    this.updatedAt,
   });
 
-  /// Connect the generated [_$CityFromJson] function to the `fromJson` factory.
-  factory PharyngitisResult.fromJson(Map<String, dynamic> json) => _$PharyngitisResultFromJson(json);
+  factory Pharyngitis.fromJson(Map<String, dynamic> json) => _$PharyngitisFromJson(json);
 
-  /// Connect the generated [_$PharyngitisResultToJson] function to the `toJson` method.
-  Map<String, dynamic> toJson() => _$PharyngitisResultToJson(this);
+  Map<String, dynamic> toJson() => _$PharyngitisToJson(this);
+}
 
+@JsonSerializable()
+class PharyngitisDiagnosisResult {
+  @JsonKey(name: 'isPharyngitis')
+  final bool? isPharyngitis;
+
+  final String? stage;
+
+  final String? suggestions;
+
+  @JsonKey(name: 'confidenceScore')
+  final double? confidenceScore;
+
+  final String? prediction; // Can be "valid", "invalid", or "N/A"
+
+  PharyngitisDiagnosisResult({
+    this.isPharyngitis,
+    this.stage,
+    this.suggestions,
+    this.confidenceScore,
+    this.prediction,
+  });
+
+  factory PharyngitisDiagnosisResult.fromJson(Map<String, dynamic> json) => _$PharyngitisDiagnosisResultFromJson(json);
+
+  Map<String, dynamic> toJson() => _$PharyngitisDiagnosisResultToJson(this);
+}
+
+enum PharyngitisStatus {
+  pending,
+  diagnosed,
+  failed,
+}
+
+extension PharyngitisStatusExtension on PharyngitisStatus {
   MaterialColor getStatusColor() {
-    return PharyngitisStatusColors.getColor(prediction);
-  }
-}
-
-enum PharyngitisResultEnum {
-  valid,
-  invalid,
-  normal,
-  moderate,
-  tonsillitis,
-}
-
-class PharyngitisStatusColors {
-  static const Map<PharyngitisResultEnum, MaterialColor> _colors = {
-    PharyngitisResultEnum.valid: Colors.amber, // Light gray
-    PharyngitisResultEnum.invalid: Colors.grey, // Yellow
-    PharyngitisResultEnum.normal: Colors.blue, // Blue
-    PharyngitisResultEnum.moderate: Colors.deepOrange, // Green
-    PharyngitisResultEnum.tonsillitis: Colors.red, // Red
-  };
-
-  static MaterialColor getColor(PharyngitisResultEnum status) {
-    return _colors[status] ?? Colors.orange; // Default color is white
+    switch (this) {
+      case PharyngitisStatus.pending:
+        return Colors.amber;
+      case PharyngitisStatus.diagnosed:
+        return Colors.green;
+      case PharyngitisStatus.failed:
+        return Colors.red;
+      }
   }
 }

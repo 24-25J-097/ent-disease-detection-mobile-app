@@ -8,11 +8,11 @@ import '../objects/objects.dart';
 import '../utils/custom_http.dart';
 
 class PharyngitisAnalyzeService {
-  static Future<PharyngitisResult?> analyzeImage(FormData formData) async {
+  static Future<Pharyngitis?> analyzeImage(FormData formData) async {
     debugPrint(":::::::::::::::::::::::::::::::::::::: PharyngitisAnalyzeService->analyzeXray(formData) ::::::::::::::::::::::::::::::::::::::");
     try {
       final response = await CustomHttp.getDio().post(
-        '${GlobalData.baseUrl}/api/pharyngitis/analyze',
+        '${GlobalData.publicUrl}diagnosis/pharyngitis',
         data: formData,
         options: Options(validateStatus: (_) => true),
       );
@@ -21,7 +21,7 @@ class PharyngitisAnalyzeService {
       if (response is! String && response.data != null && response.data is! String) {
         final ResponseObject responseObject = ResponseObject.fromJson(response.data);
         if (response.statusCode == 200 && responseObject.success! && responseObject.data != null) {
-          return PharyngitisResult.fromJson(responseObject.data as Map<String, dynamic>);
+          return Pharyngitis.fromJson(responseObject.data as Map<String, dynamic>);
         }
         AppToastWidget(responseObject.message ?? "Something went wrong");
         return null;
@@ -32,6 +32,37 @@ class PharyngitisAnalyzeService {
       return null;
     } catch (e) {
       debugPrint(":::::::::::::::::::::::::::::::::::::: PharyngitisAnalyzeService->analyzeXray(formData) => $e ");
+      AppToastWidget("Something wrong with sending the network request!");
+    }
+    return null;
+  }
+
+  static Future<String?> pharyngitisDiagnosisAccept(var diagnosisAcceptance) async {
+    debugPrint(":::::::::::::::::::::::::::::::::::::: PharyngitisDiagnosisService->diagnosis(formData) ::::::::::::::::::::::::::::::::::::::");
+    try {
+      final response = await CustomHttp.getDio().post(
+        // '${GlobalData.doctorUrl}diagnosis/pharyngitis/accept',
+        '${GlobalData.publicUrl}diagnosis/pharyngitis/accept',
+        data: diagnosisAcceptance,
+        options: Options(validateStatus: (_) => true),
+      );
+
+      debugPrint(":::::::::::::::::::::::::::::::::::::: Pharyngitis Diagnosis Service $response");
+      if (response is! String && response.data != null && response.data is! String) {
+        final ResponseObject responseObject = ResponseObject.fromJson(response.data);
+        if (response.statusCode == 200 && responseObject.success! && responseObject.data != null) {
+          // return Pharyngitis.fromJson(responseObject.data as Map<String, dynamic>);
+          return responseObject.message;
+        }
+        AppToastWidget(responseObject.message ?? "Something went wrong");
+        return null;
+      }
+    } on DioError catch (e) {
+      CustomHttp.showTimeoutDioErrors(e);
+      debugPrint(":::::::::::::::::::::::::::::::::::::: PharyngitisDiagnosisService->diagnosis(formData) => ${e.message} ");
+      return null;
+    } catch (e) {
+      debugPrint(":::::::::::::::::::::::::::::::::::::: PharyngitisDiagnosisService->diagnosis(formData) => $e ");
       AppToastWidget("Something wrong with sending the network request!");
     }
     return null;
