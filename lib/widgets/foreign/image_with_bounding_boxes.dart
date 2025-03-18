@@ -3,6 +3,7 @@ import 'package:flutter/material.dart';
 import '../../models/foreign_body_prediction.dart';
 import 'bounding_box_painter.dart';
 
+
 class ImageWithBoundingBoxes extends StatelessWidget {
   final String imagePath;
   final List<ForeignBodyPrediction> predictions;
@@ -10,6 +11,7 @@ class ImageWithBoundingBoxes extends StatelessWidget {
   final double imageHeight;
   final double displayWidth;
   final double displayHeight;
+  final bool isNetworkImage;
 
   const ImageWithBoundingBoxes({
     Key? key,
@@ -19,6 +21,7 @@ class ImageWithBoundingBoxes extends StatelessWidget {
     required this.imageHeight,
     required this.displayWidth,
     required this.displayHeight,
+    this.isNetworkImage = false,  
   }) : super(key: key);
 
   @override
@@ -28,12 +31,30 @@ class ImageWithBoundingBoxes extends StatelessWidget {
       height: displayHeight,
       child: Stack(
         children: [
-          Image.file(
-            File(imagePath),
-            width: displayWidth,
-            height: displayHeight,
-            fit: BoxFit.contain,
-          ),
+          isNetworkImage
+              ? Image.network(
+                  imagePath,
+                  width: displayWidth,
+                  height: displayHeight,
+                  fit: BoxFit.contain,
+                  loadingBuilder: (context, child, loadingProgress) {
+                    if (loadingProgress == null) return child;
+                    return Center(
+                      child: CircularProgressIndicator(
+                        value: loadingProgress.expectedTotalBytes != null
+                            ? loadingProgress.cumulativeBytesLoaded /
+                                loadingProgress.expectedTotalBytes!
+                            : null,
+                      ),
+                    );
+                  },
+                )
+              : Image.file(
+                  File(imagePath),
+                  width: displayWidth,
+                  height: displayHeight,
+                  fit: BoxFit.contain,
+                ),
           CustomPaint(
             size: Size(displayWidth, displayHeight),
             painter: BoundingBoxPainter(
@@ -54,12 +75,12 @@ class ImageWithBoundingBoxes extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(
-                    'Class B Predictions: ${predictions.where((p) => p.className == 'B').length}',
+                    'Class B: ${predictions.where((p) => p.className == 'B').length}',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                   SizedBox(height: 4),
                   Text(
-                    'Class D Predictions: ${predictions.where((p) => p.className == 'D').length}',
+                    'Class D: ${predictions.where((p) => p.className == 'D').length}',
                     style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold),
                   ),
                 ],

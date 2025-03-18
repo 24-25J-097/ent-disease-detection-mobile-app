@@ -101,7 +101,7 @@ class CreateForeignBodiesReportState extends State<CreateForeignBodiesReport> {
       });
     }
   }
-  Future<void> _uploadImageAndData() async {
+Future<void> _uploadImageAndData() async {
   if (_imageFile == null) return;
 
   setState(() {
@@ -109,30 +109,23 @@ class CreateForeignBodiesReportState extends State<CreateForeignBodiesReport> {
   });
 
   try {
-    // Generate unique ID for the report
-    final String reportId = const Uuid().v4();
-    
-    // Upload image to Firebase Storage
-    final String imagePath = 'lateral/${reportId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final String imagePath = 'lateral/${DateTime.now().millisecondsSinceEpoch}.jpg';
     final storageRef = _storage.ref().child(imagePath);
     await storageRef.putFile(_imageFile!);
     final String imageUrl = await storageRef.getDownloadURL();
 
-    // Create Firestore document
+    // Modified to match web app schema exactly
     await _firestore.collection('foreign').add({
-      'reportId': reportId,
       'patientId': _patientIdController.text,
       'note': _noteController.text,
       'imageUrl': imageUrl,
       'predictions': _predictions.map((pred) => {
-        'label': pred.className,
+        'class': pred.className,
         'confidence': pred.confidence,
-        'boundingBox': {
-          'x': pred.x,
-          'y': pred.y,
-          'width': pred.width,
-          'height': pred.height,
-        },
+        'x': pred.x,
+        'y': pred.y,
+        'width': pred.width,
+        'height': pred.height,
       }).toList(),
       'timestamp': FieldValue.serverTimestamp(),
     });
@@ -154,14 +147,17 @@ class CreateForeignBodiesReportState extends State<CreateForeignBodiesReport> {
 
   @override
 Widget build(BuildContext context) {
-  return Scaffold(
-    appBar: AppBar(title: Text("Foreign Body Detection")),
-    body: SingleChildScrollView(
-      child: Padding(
-        padding: const EdgeInsets.all(16.0),
-        child: Column(
-          crossAxisAlignment: CrossAxisAlignment.stretch,
-          children: [
+  return SafeArea(
+    child: Scaffold(
+      appBar: AppBar(
+        title: Text('Foreign Body Detection'),
+      ),
+      body: SingleChildScrollView(
+        child: Padding(
+          padding: const EdgeInsets.all(16.0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
             TextField(
               controller: _patientIdController,
               decoration: InputDecoration(
@@ -239,7 +235,9 @@ Widget build(BuildContext context) {
                         style: TextStyle(fontSize: 16),
                       ),
               ),
-          ],
+           ],
+      
+          ),
         ),
       ),
     ),

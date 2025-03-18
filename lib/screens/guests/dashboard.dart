@@ -5,7 +5,7 @@ import 'package:ent_insight_app/utils/theme_consts.dart';
 import 'package:flutter/material.dart';
 import 'package:google_fonts/google_fonts.dart';
 import 'package:persistent_bottom_nav_bar_v2/persistent_bottom_nav_bar_v2.dart';
-import 'package:ent_insight_app/screens/foreign/foreign-detection.dart';
+import 'package:ent_insight_app/screens/foreign/foreign_home.dart';
 
 import '../../widgets/widgets.g.dart';
 
@@ -34,7 +34,7 @@ class _GuestHomeScreenState extends State<GuestHomeScreen> {
       'text': 'Pharyngitis Identification',
     },
     {
-      'screen': const CreateForeignBodiesReport(),
+      'screen': const ForeignHomeScreen(),
       'image': 'assets/images/features/foreign.png',
       'text': 'Foreign Objects Identification',
     },
