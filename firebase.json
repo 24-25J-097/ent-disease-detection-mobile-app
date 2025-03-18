@@ -3,18 +3,20 @@
     "platforms": {
       "android": {
         "default": {
-          "projectId": "ent-insight-app",
-          "appId": "1:246473008231:android:bc968542b182360bace0c2",
+          "projectId": "research-project-1163b",
+          "appId": "1:117038659872:android:24d1d6ff098289feb13f45",
           "fileOutput": "android/app/google-services.json"
         }
       },
       "dart": {
         "lib/firebase_options.dart": {
-          "projectId": "ent-insight-app",
+          "projectId": "research-project-1163b",
           "configurations": {
-            "android": "1:246473008231:android:bc968542b182360bace0c2",
-            "ios": "1:246473008231:ios:bf2a5d99e072b7acace0c2",
-            "web": "1:246473008231:web:d275af4865815483ace0c2"
+            "android": "1:117038659872:android:24d1d6ff098289feb13f45",
+            "ios": "1:117038659872:ios:1e3a9a75fb04f46db13f45",
+            "macos": "1:117038659872:ios:9ffcaf74d40e3fbcb13f45",
+            "web": "1:117038659872:web:45921de58ce65ae4b13f45",
+            "windows": "1:117038659872:web:8fdd392b76bbf2dcb13f45"
           }
         }
       }

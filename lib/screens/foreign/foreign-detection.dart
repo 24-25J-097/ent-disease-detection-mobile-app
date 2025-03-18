@@ -5,6 +5,9 @@ import '../../models/foreign_body_prediction.dart';
 import '../../services/foreign_body_service.dart';
 import '../../utils/image_utils.dart';
 import '../../widgets/foreign/image_with_bounding_boxes.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'package:uuid/uuid.dart'; 
 
 class CreateForeignBodiesReport extends StatefulWidget {
   const CreateForeignBodiesReport({Key? key}) : super(key: key);
@@ -23,6 +26,10 @@ class CreateForeignBodiesReportState extends State<CreateForeignBodiesReport> {
   double displayWidth = 0;
   double displayHeight = 0;
   bool _isLoading = false;
+  final TextEditingController _patientIdController = TextEditingController();
+  final TextEditingController _noteController = TextEditingController();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance;
+  final FirebaseStorage _storage = FirebaseStorage.instance;
 
   Future<void> _validateAndAnalyzeImage() async {
     if (_imageFile == null) {
@@ -94,49 +101,148 @@ class CreateForeignBodiesReportState extends State<CreateForeignBodiesReport> {
       });
     }
   }
+  Future<void> _uploadImageAndData() async {
+  if (_imageFile == null) return;
+
+  setState(() {
+    _isLoading = true;
+  });
+
+  try {
+    // Generate unique ID for the report
+    final String reportId = const Uuid().v4();
+    
+    // Upload image to Firebase Storage
+    final String imagePath = 'lateral/${reportId}_${DateTime.now().millisecondsSinceEpoch}.jpg';
+    final storageRef = _storage.ref().child(imagePath);
+    await storageRef.putFile(_imageFile!);
+    final String imageUrl = await storageRef.getDownloadURL();
+
+    // Create Firestore document
+    await _firestore.collection('foreign').add({
+      'reportId': reportId,
+      'patientId': _patientIdController.text,
+      'note': _noteController.text,
+      'imageUrl': imageUrl,
+      'predictions': _predictions.map((pred) => {
+        'label': pred.className,
+        'confidence': pred.confidence,
+        'boundingBox': {
+          'x': pred.x,
+          'y': pred.y,
+          'width': pred.width,
+          'height': pred.height,
+        },
+      }).toList(),
+      'timestamp': FieldValue.serverTimestamp(),
+    });
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Report uploaded successfully')),
+    );
+  } catch (error) {
+    print('Error uploading data: $error');
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(content: Text('Failed to upload report. Please try again.')),
+    );
+  } finally {
+    setState(() {
+      _isLoading = false;
+    });
+  }
+}
 
   @override
-  Widget build(BuildContext context) {
-    return Scaffold(
-      appBar: AppBar(title: Text("Foreign Body Detection")),
-      body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(8.0),
-          child: Column(
-            children: [
-              ElevatedButton(
-                onPressed: _isLoading
-                    ? null
-                    : () async {
-                        await _pickImage();
-                        if (_imageFile != null) {
-                          await _validateAndAnalyzeImage();
-                        }
-                      },
-                child: _isLoading
-                    ? CircularProgressIndicator()
-                    : Text("Select and Analyze Image"),
+Widget build(BuildContext context) {
+  return Scaffold(
+    appBar: AppBar(title: Text("Foreign Body Detection")),
+    body: SingleChildScrollView(
+      child: Padding(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            TextField(
+              controller: _patientIdController,
+              decoration: InputDecoration(
+                labelText: 'Patient ID',
+                border: OutlineInputBorder(),
+                filled: true,
               ),
-              if (_validationMessage.isNotEmpty)
-                Text(
+            ),
+            SizedBox(height: 16),
+            TextField(
+              controller: _noteController,
+              maxLines: 3,
+              decoration: InputDecoration(
+                labelText: 'Clinical Notes',
+                border: OutlineInputBorder(),
+                filled: true,
+              ),
+            ),
+            SizedBox(height: 20),
+            ElevatedButton(
+              onPressed: _isLoading
+                  ? null
+                  : () async {
+                      await _pickImage();
+                      if (_imageFile != null) {
+                        await _validateAndAnalyzeImage();
+                      }
+                    },
+              child: _isLoading
+                  ? SizedBox(
+                      height: 20,
+                      width: 20,
+                      child: CircularProgressIndicator(strokeWidth: 2),
+                    )
+                  : Text("Select and Analyze Image"),
+            ),
+            if (_validationMessage.isNotEmpty)
+              Padding(
+                padding: const EdgeInsets.symmetric(vertical: 8.0),
+                child: Text(
                   _validationMessage,
                   style: TextStyle(color: Colors.red),
+                  textAlign: TextAlign.center,
                 ),
-              SizedBox(height: 20),
-              if (_imageFile != null)
-                ImageWithBoundingBoxes(
-                  imagePath: _imageFile!.path,
-                  predictions: _predictions,
-                  imageWidth: imageWidth,
-                  imageHeight: imageHeight,
-                  displayWidth: displayWidth,
-                  displayHeight: displayHeight,
+              ),
+            SizedBox(height: 20),
+            if (_imageFile != null)
+              ImageWithBoundingBoxes(
+                imagePath: _imageFile!.path,
+                predictions: _predictions,
+                imageWidth: imageWidth,
+                imageHeight: imageHeight,
+                displayWidth: displayWidth,
+                displayHeight: displayHeight,
+              ),
+            SizedBox(height: 20),
+            if (_imageFile != null && _predictions.isNotEmpty)
+              ElevatedButton(
+                onPressed: _isLoading ? null : _uploadImageAndData,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: Colors.green,
+                  padding: EdgeInsets.symmetric(vertical: 15),
                 ),
-              SizedBox(height: 20),
-            ],
-          ),
+                child: _isLoading
+                    ? SizedBox(
+                        height: 20,
+                        width: 20,
+                        child: CircularProgressIndicator(
+                          valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                          strokeWidth: 2,
+                        ),
+                      )
+                    : Text(
+                        "Save Report",
+                        style: TextStyle(fontSize: 16),
+                      ),
+              ),
+          ],
         ),
       ),
-    );
-  }
+    ),
+  );
+}
 }
