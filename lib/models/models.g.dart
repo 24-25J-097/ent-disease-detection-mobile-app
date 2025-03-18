@@ -6,31 +6,62 @@ part of 'models.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
+Sinusitis _$SinusitisFromJson(Map<String, dynamic> json) => Sinusitis(
+      id: json['_id'] as String?,
+      diagnosticianId: json['diagnosticianId'] as String?,
+      patientId: json['patientId'] as String,
+      additionalInformation: json['additionalInformation'] as String?,
+      watersViewXrayImage: json['watersViewXrayImage'] as String,
+      diagnosisResult: json['diagnosisResult'] == null
+          ? null
+          : SinusitisResult.fromJson(
+              json['diagnosisResult'] as Map<String, dynamic>),
+      status: $enumDecodeNullable(_$SinusitisStatusEnumMap, json['status']),
+      accepted: json['accepted'] as bool?,
+      createdAt: json['createdAt'] == null
+          ? null
+          : DateTime.parse(json['createdAt'] as String),
+      updatedAt: json['updatedAt'] == null
+          ? null
+          : DateTime.parse(json['updatedAt'] as String),
+    );
+
+Map<String, dynamic> _$SinusitisToJson(Sinusitis instance) => <String, dynamic>{
+      '_id': instance.id,
+      'diagnosticianId': instance.diagnosticianId,
+      'patientId': instance.patientId,
+      'additionalInformation': instance.additionalInformation,
+      'watersViewXrayImage': instance.watersViewXrayImage,
+      'diagnosisResult': instance.diagnosisResult?.toJson(),
+      'status': _$SinusitisStatusEnumMap[instance.status],
+      'accepted': instance.accepted,
+      'createdAt': instance.createdAt?.toIso8601String(),
+      'updatedAt': instance.updatedAt?.toIso8601String(),
+    };
+
+const _$SinusitisStatusEnumMap = {
+  SinusitisStatus.pending: 'pending',
+  SinusitisStatus.diagnosed: 'diagnosed',
+  SinusitisStatus.failed: 'failed',
+};
+
 SinusitisResult _$SinusitisResultFromJson(Map<String, dynamic> json) =>
     SinusitisResult(
+      severity: json['severity'] as String?,
       isSinusitis: json['isSinusitis'] as bool,
-      label: json['label'] as String,
-      suggestions: json['suggestions'] as String,
-      prediction: $enumDecode(_$SinusitisResultEnumEnumMap, json['prediction']),
-      confidenceScore: json['confidence_score'] as num,
+      suggestions: json['suggestions'] as String?,
+      prediction: json['prediction'] as String?,
+      confidenceScore: (json['confidenceScore'] as num?)?.toDouble(),
     );
 
 Map<String, dynamic> _$SinusitisResultToJson(SinusitisResult instance) =>
     <String, dynamic>{
       'isSinusitis': instance.isSinusitis,
-      'prediction': _$SinusitisResultEnumEnumMap[instance.prediction]!,
-      'confidence_score': instance.confidenceScore,
-      'label': instance.label,
+      'severity': instance.severity,
       'suggestions': instance.suggestions,
+      'confidenceScore': instance.confidenceScore,
+      'prediction': instance.prediction,
     };
-
-const _$SinusitisResultEnumEnumMap = {
-  SinusitisResultEnum.valid: 'valid',
-  SinusitisResultEnum.invalid: 'invalid',
-  SinusitisResultEnum.mild: 'mild',
-  SinusitisResultEnum.moderate: 'moderate',
-  SinusitisResultEnum.severe: 'severe',
-};
 
 PharyngitisResult _$PharyngitisResultFromJson(Map<String, dynamic> json) =>
     PharyngitisResult(
