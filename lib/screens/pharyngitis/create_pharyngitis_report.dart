@@ -424,7 +424,7 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
                                         Colors.red,
                                       ),
                                       const Text(
-                                        'Please upload valid waters view xray image.',
+                                        'Please upload valid oral image.',
                                         style: TextStyle(
                                           color: Colors.grey,
                                           fontSize: 14,
@@ -447,7 +447,7 @@ class _CreatePharyngitisReportState extends State<CreatePharyngitisReport> {
                                         CrossAxisAlignment.start,
                                     children: [
                                       _buildDiagnosisRow(
-                                        'Sinusitis Identified:',
+                                        'Pharyngitis Identified:',
                                         _analysisResult?.isPharyngitis != null
                                             ? (_analysisResult?.isPharyngitis ==
                                                     true
