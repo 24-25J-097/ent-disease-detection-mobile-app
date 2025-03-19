@@ -8,6 +8,7 @@ import '../../widgets/foreign/image_with_bounding_boxes.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_storage/firebase_storage.dart';
 import 'package:uuid/uuid.dart'; 
+import './patient_id_field.dart';
 
 class CreateForeignBodiesReport extends StatefulWidget {
   const CreateForeignBodiesReport({Key? key}) : super(key: key);
@@ -26,6 +27,7 @@ class CreateForeignBodiesReportState extends State<CreateForeignBodiesReport> {
   double displayWidth = 0;
   double displayHeight = 0;
   bool _isLoading = false;
+  bool _isPatientIdValid = false;
   final TextEditingController _patientIdController = TextEditingController();
   final TextEditingController _noteController = TextEditingController();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
@@ -145,7 +147,7 @@ Future<void> _uploadImageAndData() async {
   }
 }
 
-  @override
+@override
 Widget build(BuildContext context) {
   return SafeArea(
     child: Scaffold(
@@ -153,18 +155,17 @@ Widget build(BuildContext context) {
         title: Text('Foreign Body Detection'),
       ),
       body: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.stretch,
-            children: [
-            TextField(
+        padding: const EdgeInsets.all(16.0),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            PatientIdField(
               controller: _patientIdController,
-              decoration: InputDecoration(
-                labelText: 'Patient ID',
-                border: OutlineInputBorder(),
-                filled: true,
-              ),
+              onValidityChanged: (isValid) {
+                setState(() {
+                  _isPatientIdValid = isValid;
+                });
+              },
             ),
             SizedBox(height: 16),
             TextField(
@@ -216,7 +217,9 @@ Widget build(BuildContext context) {
             SizedBox(height: 20),
             if (_imageFile != null && _predictions.isNotEmpty)
               ElevatedButton(
-                onPressed: _isLoading ? null : _uploadImageAndData,
+                onPressed: (_isLoading || !_isPatientIdValid) 
+                    ? null 
+                    : _uploadImageAndData,
                 style: ElevatedButton.styleFrom(
                   backgroundColor: Colors.green,
                   padding: EdgeInsets.symmetric(vertical: 15),
@@ -235,9 +238,7 @@ Widget build(BuildContext context) {
                         style: TextStyle(fontSize: 16),
                       ),
               ),
-           ],
-      
-          ),
+          ],
         ),
       ),
     ),

@@ -12,7 +12,7 @@ class ForeignBodyService {
       String? mimeType = lookupMimeType(imageFile.path);
       mimeType = mimeType ?? 'image/jpeg';
 
-      var validationUri = Uri.parse('${GlobalData.baseUrl}/api/foreign/run-inference/');
+      var validationUri = Uri.parse('${GlobalData.baseUrl3}/api/foreign/run-inference/');
       var validationRequest = http.MultipartRequest('POST', validationUri);
       validationRequest.headers.addAll({
         "Content-Type": "multipart/form-data",
@@ -46,7 +46,7 @@ class ForeignBodyService {
       String? mimeType = lookupMimeType(imageFile.path);
       mimeType = mimeType ?? 'image/jpeg';
 
-      var analysisUri = Uri.parse('${GlobalData.baseUrl}/api/foreign/detect');
+      var analysisUri = Uri.parse('${GlobalData.baseUrl3}/api/foreign/detect');
       var analysisRequest = http.MultipartRequest('POST', analysisUri);
       analysisRequest.headers.addAll({
         "Content-Type": "multipart/form-data",
